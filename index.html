@@ -132,7 +132,7 @@ textarea{resize:vertical;line-height:1.5;min-height:140px}
 .dmsg{background:var(--y-soft);border:1px solid #f0d36a;color:#5c4700;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:6px}
 .lgo{position:fixed;top:0;left:0;right:0;bottom:0;z-index:60;background-color:var(--bg);background-image:linear-gradient(rgba(15,23,32,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,32,.05) 1px,transparent 1px);background-size:20px 20px;overflow:auto}
 .lgerr{color:var(--warn);font-size:13px;margin:0 0 10px;min-height:18px}
-.sync{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:16px;font-size:12.5px;color:var(--muted)}
+.sync{white-space:pre-line;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:16px;font-size:12.5px;color:var(--muted)}
 .sync button{flex:none;border:1.5px solid var(--ink);background:#fff;border-radius:10px;padding:5px 12px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--ink)}
 .lk{z-index:70}
 .lkw{text-align:center;padding-top:26px}
@@ -746,7 +746,7 @@ function dvCalc(){
   '<div><span>Power R1</span><b>'+dvP(i*i*r1)+'</b></div><div><span>Power R2</span><b>'+dvP(i*i*r2)+'</b></div></div>';
 }
 /* ---------- Firebase cloud sync ---------- */
-var FB={on:false,off:false,user:null,db:null,auth:null,first:{},state:{},unsubs:[],err:""};
+var FB={on:false,off:false,user:null,db:null,auth:null,first:{},state:{},unsubs:[],err:"",diag:""};
 var FBCFG={apiKey:"AIzaSyCXpGe5aVNOklLyTTzu3NfksiwY65LTuKc",authDomain:"repairing-data-f8070.firebaseapp.com",projectId:"repairing-data-f8070",storageBucket:"repairing-data-f8070.firebasestorage.app",messagingSenderId:"153022559127",appId:"1:153022559127:web:0e0a6060c838e96b668ad2"};
 var CNAMES=["lines","forms","courses","notes"];
 function cArr(n){ return n==="lines"?data:n==="forms"?forms:n==="courses"?cn.courses:cn.notes; }
@@ -772,11 +772,26 @@ function syncStatus(){
       txt="Cloud error: "+FB.err+hint;
     } else txt="Cloud se connect ho raha hai ("+k+"/4)...";
   }
+  if(FB.diag&&!all) txt+="\n"+FB.diag;
   t.textContent=txt;
   var lo=localStorage.getItem("ld_local_only")==="1"; $("cloudBtn").classList.toggle("hide",!lo); $("outBtn").classList.toggle("hide",!FB.user);
   $("syncBtn").classList.toggle("hide",!FB.user);
 }
-function resync(){ if(!FB.user) return; stopSync(); FB.err=""; startSync(); syncStatus(); toast("Sync dobara shuru"); }
+function fsDiag(){
+  if(!FB.user) return;
+  FB.diag="Jaanch ho rahi hai..."; syncStatus();
+  FB.user.getIdToken().then(function(tk){
+    return fetch("https://firestore.googleapis.com/v1/projects/"+FBCFG.projectId+"/databases/(default)/documents/lines?pageSize=1",{headers:{Authorization:"Bearer "+tk}}).then(function(r){ return r.json().then(function(j){ return {s:r.status,j:j}; }); });
+  }).then(function(o){
+    var st=(o.j&&o.j.error&&o.j.error.status)||"";
+    FB.diag=o.s===200?"Jaanch: Firestore server se baat ho rahi hai (REST theek). Sirf live connection atak raha hai, network ya phone ki wajah se.":
+      o.s===403?"Jaanch: "+st+". Rules ne roka hai: email match karo aur Publish karo.":
+      o.s===404?"Jaanch: Firestore database nahi mila. Database (default) create hua ya nahi dekho.":
+      "Jaanch: HTTP "+o.s+" "+st;
+    syncStatus();
+  }).catch(function(){ FB.diag="Jaanch: firestore.googleapis.com tak net pahunch nahi raha (network block ya net band)."; syncStatus(); });
+}
+function resync(){ if(!FB.user) return; stopSync(); FB.err=""; FB.diag=""; startSync(); syncStatus(); toast("Sync dobara shuru"); }
 function refreshUI(){
   if(cur==="home") renderHome(); else if(cur==="view"){ fillFilters(); render(); }
   else if(cur==="forms") renderForms(); else if(cur==="cn") renderCourses(); else if(cur==="cnl") renderNotes();
@@ -794,7 +809,7 @@ function cloudPush(n){
 }
 function startSync(){
   FB.on=true;
-  setTimeout(function(){ if(FB.user&&!FB.err&&!CNAMES.every(function(x){return FB.first[x]})){ FB.err="connect nahi ho paaya"; syncStatus(); } },15000);
+  setTimeout(function(){ if(FB.user&&!FB.err&&!CNAMES.every(function(x){return FB.first[x]})){ FB.err="connect nahi ho paaya"; syncStatus(); fsDiag(); } },15000);
   CNAMES.forEach(function(n){
     FB.unsubs.push(FB.db.collection(n).onSnapshot(function(snap){
       var remote=[], st={};
@@ -810,7 +825,7 @@ function startSync(){
         }
         cSet(n,merged); FB.first[n]=true; cloudPush(n);
       } else cSet(n,remote);
-      if(CNAMES.every(function(x){return FB.first[x]})) FB.err="";
+      if(CNAMES.every(function(x){return FB.first[x]})){ FB.err=""; FB.diag=""; }
       syncStatus(); refreshUI();
     },function(e){ FB.err=(e&&e.code)||"connect-error"; syncStatus(); toast("Cloud error: "+FB.err); }));
   });
@@ -822,7 +837,7 @@ function cloudInit(){
   if(typeof firebase==="undefined"){ FB.off=true; lo.classList.add("hide"); syncStatus(); ensureMpin(); return; }
   try{
     firebase.initializeApp(FBCFG); FB.auth=firebase.auth(); FB.db=firebase.firestore();
-    try{ FB.db.settings({experimentalAutoDetectLongPolling:true,merge:true}); }catch(e){}
+    try{ FB.db.settings({experimentalForceLongPolling:true,merge:true}); }catch(e){}
     try{ FB.db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
   }catch(e){ FB.off=true; lo.classList.add("hide"); syncStatus(); return; }
   setTimeout(function(){ if(!FB.user&&!$("lgWait").classList.contains("hide")){ $("lgWait").classList.add("hide"); $("lgForm").classList.remove("hide"); } },5000);
