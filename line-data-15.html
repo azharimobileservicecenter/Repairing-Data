@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Line Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef0f2;--ink:#0f1720;--muted:#66727f;--line:#dde2e7;--y:#ffc400;--y-soft:#fff6d1;--warn:#d6403a;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{font-family:"Chakra Petch",system-ui,-apple-system,Roboto,sans-serif;background-color:var(--bg);background-image:linear-gradient(rgba(15,23,32,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,32,.05) 1px,transparent 1px);background-size:20px 20px;color:var(--ink);min-height:100%;font-size:15px;line-height:1.4}
+.app{background:var(--y);display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 14px;border-bottom:2.5px solid var(--ink)}
+.lg{width:40px;height:40px;border-radius:11px;background:var(--ink);display:grid;place-items:center;flex:none}
+.lg svg{width:24px;height:24px;color:var(--y)}
+.app b{display:block;font-weight:700;font-size:22px;line-height:1.1}
+.app span{font-size:13px;font-weight:500;opacity:.75}
+.wrap{max-width:560px;margin:0 auto;padding:18px 16px 40px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.top h2{font-size:22px;font-weight:700}
+.back{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--ink);background:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
+.back svg{width:18px;height:18px}
+.seg{margin-left:auto;display:inline-flex;background:#fff;border:1.5px solid var(--ink);border-radius:11px;padding:2px}
+.seg button{border:none;background:none;border-radius:8px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--muted);font-family:inherit;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--y)}
+input,select,textarea{width:100%;border:1.5px solid #cfd6dd;background:#fff;border-radius:12px;padding:12px 13px;font-size:15px;font-family:inherit;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--ink);box-shadow:0 0 0 3px var(--y)}
+label{display:block;font-size:12.5px;font-weight:600;margin:0 0 5px;color:var(--muted)}
+.search{position:relative;margin-bottom:10px}
+.search input{padding-left:42px}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px}
+.hs{margin:0 0 14px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.big{border-radius:16px;padding:22px 12px;font-size:17px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:inherit;border:1.5px solid var(--ink)}
+.big svg{width:28px;height:28px}
+.big.p{background:var(--ink);color:#fff}
+.big.p svg{color:var(--y)}
+.big.s{background:#fff;color:var(--ink)}
+.recent{margin-top:26px}
+.recent h2{font-size:15px;font-weight:700;margin-bottom:10px}
+.tools{display:flex;gap:10px;margin-top:22px}
+.tools button{flex:1;background:transparent;border:1.5px dashed #9aa5b0;border-radius:12px;padding:10px;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit}
+.form{background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:16px;box-shadow:4px 4px 0 var(--y)}
+.f{margin-bottom:12px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lh,.lr{display:grid;grid-template-columns:1.25fr 1fr 1fr 30px;gap:6px;align-items:center}
+.lh{font-size:12px;font-weight:600;color:var(--muted);margin:2px 2px 6px}
+.lr{margin-bottom:8px}
+.lr input{padding:11px 9px;font-size:14px;border-radius:10px}
+.lr .g,.lr .vv{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13.5px;font-weight:500}
+.lr .x{width:30px;height:38px;border:none;background:none;color:var(--warn);font-size:20px;cursor:pointer;line-height:1}
+.addrow{width:100%;border:1.5px dashed var(--ink);background:var(--y-soft);color:var(--ink);border-radius:12px;padding:10px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit;margin:2px 0 10px}
+.hint{font-size:12px;color:var(--muted);margin:0 2px 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.chips button{border:1.5px solid var(--ink);background:#fff;border-radius:18px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink)}
+.exist{font-size:12.5px;line-height:1.4;color:#5c4700;background:var(--y-soft);border:1px solid #f0d36a;border-radius:10px;padding:8px 10px;margin:-4px 0 12px}
+.save{width:100%;margin-top:4px;background:var(--y);color:var(--ink);border:1.5px solid var(--ink);border-radius:12px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+.ghost{width:100%;margin-top:8px;background:transparent;color:var(--muted);border:none;padding:9px;font-size:14px;cursor:pointer;font-family:inherit}
+.stk{position:sticky;top:0;z-index:5;background:rgba(238,240,242,.95);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);margin:0 -16px 6px;padding:2px 16px 4px}
+.bchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.bchips::-webkit-scrollbar{display:none}
+.bc{flex:none;border:1.5px solid #cfd6dd;background:#fff;color:var(--ink);border-radius:20px;padding:6px 14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.bc.on{background:var(--ink);border-color:var(--ink);color:var(--y)}
+.filters{display:grid;grid-template-columns:1fr 1fr .85fr;gap:8px;margin-bottom:6px}
+.filters select{padding:9px 8px;font-size:13px;border-radius:10px}
+.count{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);margin:10px 2px}
+.count button{background:none;border:none;color:var(--ink);font-weight:700;font-size:12.5px;text-decoration:underline;text-decoration-color:var(--y);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer;font-family:inherit}
+.cards{display:grid;gap:10px}
+.bg{margin-bottom:16px}
+.bh{display:flex;justify-content:space-between;align-items:center;margin:0 2px 7px}
+.bh b{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700}
+.bh b::before{content:"";width:10px;height:10px;background:var(--y);border:1.5px solid var(--ink);border-radius:3px}
+.bh span{font-size:12px;color:var(--muted)}
+.bl,.pc{background:#fff;border:1.5px solid var(--ink);border-radius:14px}
+.bl{overflow:hidden}
+.mr{display:flex;gap:8px;padding:11px 12px 10px 16px;position:relative}
+.mr+.mr{border-top:1px solid var(--line)}
+.mr::before{content:"";position:absolute;left:0;top:11px;bottom:10px;width:3px;background:var(--y);border-radius:0 3px 3px 0}
+.mm{flex:1;min-width:0}
+.mt{font-size:16px;font-weight:700;line-height:1.3;margin-bottom:3px;word-break:break-word}
+.lx{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 7px;padding:2px 0;font-size:13.5px;word-break:break-word}
+.dt{width:7px;height:7px;border-radius:50%;flex:none;align-self:center}
+.lx .n1{font-weight:700}
+.lx .kk{color:var(--muted);font-weight:500;font-size:12px}
+.lx .rv{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:13px}
+.pa{display:flex;gap:6px;flex:none}
+.pa button{width:30px;height:30px;border:1.5px solid #d3d9df;background:#fff;border-radius:9px;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.pa button.x{color:var(--warn);border-color:#f1c4c7}
+.pa svg{width:14px;height:14px}
+.pc{padding:10px 12px 8px}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.ct{font-size:16px;font-weight:700;line-height:1.25;word-break:break-word;min-width:0}
+.ct .bn{font-weight:500;color:var(--muted);font-size:13px;margin-right:6px}
+.ls{margin-top:5px}
+.big.w{grid-column:1/-1;flex-direction:row;justify-content:center;padding:15px;font-size:16px}
+.big.w svg{width:22px;height:22px}
+.sw{display:flex;justify-content:space-between;align-items:center;margin:14px 2px 0;font-size:14px;color:var(--ink);font-weight:600}
+.sw input{width:22px;height:22px;accent-color:var(--ink)}
+.fr{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.fr+.fr{border-top:1px solid var(--line)}
+.fs{background:var(--ink);color:var(--y);font-weight:700;font-size:13px;padding:3px 10px;border-radius:8px;flex:none;max-width:40%;word-break:break-word}
+.ft{flex:1;min-width:0;font-size:14.5px;font-weight:500;word-break:break-word}
+.lx .ff{color:var(--muted);font-size:12px;font-weight:500}
+textarea{resize:vertical;line-height:1.5;min-height:140px}
+.cc{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:12px 14px;cursor:pointer}
+.cc .cb{flex:1;min-width:0}
+.cc b{font-size:16px;display:block;word-break:break-word}
+.cc span.s{font-size:12.5px;color:var(--muted)}
+.nc{background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:11px 13px;cursor:pointer}
+.nc.pn{box-shadow:3px 3px 0 var(--y)}
+.nh{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.nt{font-size:15.5px;font-weight:700;line-height:1.3;word-break:break-word}
+.st{background:var(--y);border-radius:6px;padding:0 6px;font-size:12px;flex:none}
+.nm{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin:3px 0 5px;font-size:12px;color:var(--muted)}
+.tg{background:var(--ink);color:var(--y);font-weight:600;border-radius:7px;padding:1px 8px;font-size:11.5px}
+.nb{font-size:14px;line-height:1.5;color:#2a3540;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.nc.op .nb{display:block;white-space:pre-wrap;overflow:visible}
+.np{display:block;width:100%;border-radius:10px;border:1.5px solid var(--line);margin:10px 0 0}
+.na{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.na button{border:1.5px solid var(--ink);background:#fff;border-radius:16px;padding:5px 13px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink)}
+.na button.x{color:var(--warn);border-color:#f1c4c7}
+.dvg{display:block;width:190px;max-width:70%;margin:0 auto 12px;color:var(--ink)}
+.rg{display:grid;grid-template-columns:1fr 92px;gap:8px}
+.dm{background:var(--ink);color:#fff;border-radius:14px;padding:14px 16px;margin-top:6px}
+.dm small{display:block;font-size:12.5px;color:#aeb8c2}
+.dm b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:28px;color:var(--y);font-weight:700;word-break:break-word}
+.dfs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.dfs div{background:#f6f7f9;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.dfs span{display:block;font-size:11.5px;color:var(--muted)}
+.dfs b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13.5px}
+.dmsg{background:var(--y-soft);border:1px solid #f0d36a;color:#5c4700;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:6px}
+.lgo{position:fixed;top:0;left:0;right:0;bottom:0;z-index:60;background-color:var(--bg);background-image:linear-gradient(rgba(15,23,32,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,32,.05) 1px,transparent 1px);background-size:20px 20px;overflow:auto}
+.lgerr{color:var(--warn);font-size:13px;margin:0 0 10px;min-height:18px}
+.sync{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:16px;font-size:12.5px;color:var(--muted)}
+.sync button{flex:none;border:1.5px solid var(--ink);background:#fff;border-radius:10px;padding:5px 12px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--ink)}
+.lk{z-index:70}
+.lkw{text-align:center;padding-top:26px}
+.lkt{font-size:18px;font-weight:700;margin-bottom:16px}
+.lkd{display:flex;justify-content:center;gap:14px;margin-bottom:8px}
+.lkd i{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink);background:#fff}
+.lkd i.on{background:var(--ink)}
+.kp{display:grid;grid-template-columns:repeat(3,76px);gap:12px;justify-content:center;margin:18px 0 8px}
+.kp button{height:64px;border-radius:18px;border:1.5px solid var(--ink);background:#fff;font-size:24px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--ink)}
+.kp button:active{background:var(--y)}
+mark{background:#ffe066;color:inherit;border-radius:3px}
+.empty{text-align:center;color:var(--muted);padding:34px 10px;background:#fff;border:1.5px dashed #9aa5b0;border-radius:14px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--y);font-weight:600;padding:11px 18px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+.toast.on{opacity:1}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div id="lock" class="lgo lk hide">
+  <header class="app"><div class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-6 4 12 2.5-6H22"/></svg></div><div><b>Line Data</b><span>Azhari Mobile Service Center</span></div></header>
+  <div class="wrap lkw">
+    <div class="lkt" id="lkTitle">MPIN daalo</div>
+    <div class="lkd" id="lkDots"><i></i><i></i><i></i><i></i></div>
+    <div class="lgerr" id="lkErr"></div>
+    <div class="kp"><button onclick="lkKey('1')">1</button><button onclick="lkKey('2')">2</button><button onclick="lkKey('3')">3</button><button onclick="lkKey('4')">4</button><button onclick="lkKey('5')">5</button><button onclick="lkKey('6')">6</button><button onclick="lkKey('7')">7</button><button onclick="lkKey('8')">8</button><button onclick="lkKey('9')">9</button><span></span><button onclick="lkKey('0')">0</button><button onclick="lkKey('b')" aria-label="Delete">&#9003;</button></div>
+    <button class="ghost" id="lkCancel" onclick="lkClose()">Cancel</button>
+    <button class="ghost" id="lkForgot" onclick="lkForgot()">MPIN bhool gaye?</button>
+  </div>
+</div>
+<div id="login" class="lgo">
+  <header class="app"><div class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-6 4 12 2.5-6H22"/></svg></div><div><b>Line Data</b><span>Azhari Mobile Service Center</span></div></header>
+  <div class="wrap">
+    <div id="lgWait" class="empty" style="margin-top:20px">Check ho raha hai...</div>
+    <div class="form hide" id="lgForm" style="margin-top:20px">
+      <div class="f"><label for="lgEmail">Email</label><input id="lgEmail" type="email" inputmode="email" autocomplete="username"></div>
+      <div class="f"><label for="lgPass">Password</label><input id="lgPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="lgerr" id="lgErr"></div>
+      <button class="save" id="lgBtn" onclick="doLogin()">Login</button>
+    </div>
+  </div>
+</div>
+<header class="app"><div class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-6 4 12 2.5-6H22"/></svg></div><div><b>Line Data</b><span>Azhari Mobile Service Center</span></div></header>
+<div class="wrap">
+
+<!-- HOME -->
+<section id="home">
+  <div class="search hs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="hq" enterkeyhint="search" placeholder="Model search karo, jaise Y20" onkeydown="if(event.key==='Enter')goSearch()" autocomplete="off"></div>
+  <div class="actions">
+    <button class="big p" onclick="openAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add Data</button>
+    <button class="big s" onclick="show('view')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/></svg>View Data</button>
+      <button class="big s w" onclick="show('forms')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2zm0 0a2 2 0 0 0 2 2h13"/></svg>Full Forms</button>
+    <button class="big s w" onclick="show('cn')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M12 8h4M12 12h4"/></svg>Course Notes</button>
+    <button class="big s w" onclick="show('dv')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-5 3 10 3-10 2 5h6"/></svg>Divider Calc</button>
+  </div>
+  <div class="recent"><h2>Recently added</h2><div class="cards" id="recent"></div></div>
+  <div class="tools">
+    <button onclick="exportData()">Backup save</button>
+    <button onclick="document.getElementById('imp').click()">Backup restore</button>
+    <input type="file" id="imp" accept=".json,application/json" class="hide" onchange="importData(event)">
+  </div>
+  <div class="sync"><span id="syncTxt"></span><div style="display:flex;gap:6px;flex:none"><button onclick="changeMpin()">MPIN badlo</button><button onclick="doLogout()">Logout</button></div></div>
+</section>
+
+<!-- ADD -->
+<section id="add" class="hide">
+  <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2 id="addTitle">Add Data</h2></div>
+  <div class="form">
+    <div class="r2">
+      <div class="f"><label for="brand">Brand</label><input id="brand" list="brandList" placeholder="Vivo" oninput="onBM()" autocomplete="off"></div>
+      <div class="f"><label for="model">Model</label><input id="model" list="modelList" placeholder="Y20" oninput="onBM()" autocomplete="off"></div>
+    </div>
+    <div class="exist hide" id="exist"></div>
+    <datalist id="brandList"></datalist><datalist id="modelList"></datalist><datalist id="lineList"></datalist>
+    <div class="lh"><span>Line name</span><span>GR</span><span>Voltage</span><span></span></div>
+    <div id="rows"></div>
+    <button class="addrow" id="addRowBtn" onclick="addRow()">+ Add another line</button>
+    <div class="hint" id="chipHint">Quick add</div>
+    <div class="chips" id="chips">
+      <button onclick="addRow('DM')">DM</button><button onclick="addRow('DP')">DP</button><button onclick="addRow('BAT ID')">BAT ID</button><button onclick="addRow('Thermal')">Thermal</button>
+    </div>
+    <button class="save" onclick="saveItem()" id="saveBtn">Save data</button>
+    <button class="ghost" onclick="goBack()">Cancel</button>
+  </div>
+</section>
+
+<!-- VIEW -->
+<section id="view" class="hide">
+  <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2>View Data</h2><div class="seg"><button id="vL" onclick="setView('list')">List</button><button id="vC" onclick="setView('card')">Cards</button></div></div>
+  <div class="stk"><div class="bchips" id="bchips"></div>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" placeholder="Search: brand, model, line, GR, voltage" oninput="render()" autocomplete="off">
+  </div></div>
+  <select id="fBrand" class="hide" onchange="onBrand()"></select>
+  <div class="filters f3">
+    <select id="fModel" onchange="render()"></select>
+    <select id="fLine" onchange="render()"></select>
+    <select id="sort" onchange="render()">
+      <option value="new">Newest</option><option value="old">Oldest</option><option value="brand">Brand A–Z</option><option value="model">Model A–Z</option><option value="line">Line A–Z</option>
+    </select>
+  </div>
+  <div class="count"><span id="cnt"></span><button onclick="resetF()">Reset filters</button></div>
+  <div class="cards" id="list"></div>
+</section>
+
+<!-- FULL FORMS -->
+<section id="forms" class="hide">
+  <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Full Forms</h2></div>
+  <div class="form">
+    <div class="r2">
+      <div class="f"><label for="frShort">Line name</label><input id="frShort" placeholder="DM" autocomplete="off"></div>
+      <div class="f"><label for="frFull">Full form</label><input id="frFull" placeholder="Full form likho" autocomplete="off"></div>
+    </div>
+    <div class="hint hide" id="frHint">Ye lines ka full form abhi nahi hai, dabao</div>
+    <div class="chips" id="frChips"></div>
+    <button class="save" id="frSave" onclick="saveForm()">Save full form</button>
+    <button class="ghost hide" id="frCancel" onclick="resetForm()">Cancel edit</button>
+  </div>
+  <label class="sw"><span>Cards me full form dikhao</span><input type="checkbox" id="frSw" onchange="setShowFull()"></label>
+  <div class="search" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="frQ" placeholder="Search line name ya full form" oninput="renderForms()" autocomplete="off"></div>
+  <div class="count"><span id="frCnt"></span><span></span></div>
+  <div class="bl" id="frList"></div>
+</section>
+
+<!-- COURSE NOTES -->
+<section id="cn" class="hide">
+  <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Course Notes</h2></div>
+  <div class="form">
+    <div class="f"><label for="cnName">Naya course</label><input id="cnName" placeholder="Course ka naam" autocomplete="off"></div>
+    <button class="save" onclick="addCourse()">Course jodo</button>
+  </div>
+  <div class="count" style="margin-top:16px"><span id="cnCnt"></span><span></span></div>
+  <div class="cards" id="cnList"></div>
+</section>
+
+<section id="cnl" class="hide">
+  <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2 id="cnlTitle">Course</h2></div>
+  <button class="save" style="margin:0 0 12px" onclick="newNote()">+ New note</button>
+  <div class="stk"><div class="bchips" id="ncChips"></div><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="ncQ" placeholder="Search notes" oninput="renderNotes()" autocomplete="off"></div></div>
+  <div class="count"><span id="ncCnt"></span><span></span></div>
+  <div class="cards" id="ncList"></div>
+</section>
+
+<section id="cne" class="hide">
+  <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2 id="cneTitle">New note</h2></div>
+  <div class="form">
+    <div class="r2">
+      <div class="f"><label for="neCourse">Course</label><select id="neCourse" onchange="fillCats()"></select></div>
+      <div class="f"><label for="neCat">Category</label><input id="neCat" list="catList" placeholder="Chapter / topic" autocomplete="off"></div>
+    </div>
+    <datalist id="catList"></datalist>
+    <div class="f"><label for="neTitle">Title</label><input id="neTitle" placeholder="Note ka title" autocomplete="off"></div>
+    <div class="f"><label for="neBody">Notes</label><textarea id="neBody" rows="9" placeholder="Yaha likho..."></textarea></div>
+    <div class="f"><label>Notebook photo</label><div id="nePhoto"></div>
+      <button class="addrow" onclick="document.getElementById('neFile').click()">+ Photo jodo</button>
+      <input type="file" id="neFile" accept="image/*" class="hide" onchange="pickPhoto(event)"></div>
+    <button class="save" onclick="saveNote()">Save note</button>
+    <button class="ghost" onclick="goBack()">Cancel</button>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<section id="dv" class="hide">
+  <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Divider Calc</h2></div>
+  <div class="form">
+    <svg class="dvg" viewBox="0 0 240 165" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-label="Voltage divider">
+      <circle cx="60" cy="12" r="3.5" fill="currentColor"/><text x="12" y="17" font-size="14" font-weight="700" fill="currentColor" stroke="none">Vin</text>
+      <path d="M60 15v15"/><rect x="50" y="30" width="20" height="40" rx="3"/><text x="82" y="54" font-size="14" font-weight="700" fill="currentColor" stroke="none">R1</text>
+      <path d="M60 70v10M60 80h92"/><circle cx="60" cy="80" r="4" fill="#ffc400"/><circle cx="152" cy="80" r="3.5" fill="currentColor"/><text x="160" y="85" font-size="14" font-weight="700" fill="currentColor" stroke="none">Vout</text>
+      <path d="M60 80v10"/><rect x="50" y="90" width="20" height="40" rx="3"/><text x="82" y="114" font-size="14" font-weight="700" fill="currentColor" stroke="none">R2</text>
+      <path d="M60 130v14M46 144h28M51 150h18M56 156h8"/></svg>
+    <div class="hint">Teen cheezein bharo, jo nikalna hai wo khali chhodo.</div>
+    <div class="r2">
+      <div class="f"><label for="dvVin">Vin (V)</label><input id="dvVin" inputmode="decimal" placeholder="3.3" oninput="dvCalc()" autocomplete="off"></div>
+      <div class="f"><label for="dvVout">Vout (V)</label><input id="dvVout" inputmode="decimal" placeholder="1.8" oninput="dvCalc()" autocomplete="off"></div>
+    </div>
+    <div class="f"><label for="dvR1">R1 (upar wala)</label><div class="rg"><input id="dvR1" inputmode="decimal" placeholder="10" oninput="dvCalc()" autocomplete="off"><select id="dvU1" onchange="dvCalc()"><option value="1">&Omega;</option><option value="1000" selected>k&Omega;</option><option value="1000000">M&Omega;</option></select></div></div>
+    <div class="f"><label for="dvR2">R2 (neeche wala)</label><div class="rg"><input id="dvR2" inputmode="decimal" placeholder="10" oninput="dvCalc()" autocomplete="off"><select id="dvU2" onchange="dvCalc()"><option value="1">&Omega;</option><option value="1000" selected>k&Omega;</option><option value="1000000">M&Omega;</option></select></div></div>
+    <div id="dvRes"></div>
+    <button class="ghost" onclick="dvClear()">Clear</button>
+  </div>
+</section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+var cn={courses:[],notes:[]}, curCourse=null, curCat="", ncCats=[], openNote=null, editNoteId=null, nePhoto=null, neMode="none", forms=[], showFull=false, editFormId=null, frNames=[], viewMode="list", brandsList=[], KEY="line_data_v1", data=[], editId=null, editIds=null;
+
+try{ viewMode=localStorage.getItem("ld_view")||"list"; }catch(e){}
+function load(){ try{ data=JSON.parse(localStorage.getItem(KEY)||"[]"); if(!Array.isArray(data)) data=[]; }catch(e){ data=[]; } }
+function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(data)); }catch(e){ toast("Save nahi ho paya, storage full ya blocked"); } cloudPush("lines"); }
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("on")},2200)}
+function uniq(k,list){var s={};(list||data).forEach(function(d){if(d[k])s[d[k].trim().toLowerCase()]=d[k].trim()});return Object.keys(s).sort().map(function(x){return s[x]})}
+
+var cur="home", depth=0;
+function goBack(){ if(depth>0) history.back(); else show("home"); }
+function show(id,fromPop){
+  if(!fromPop&&id!==cur){ try{ history.pushState({s:id},""); depth++; }catch(e){} }
+  cur=id;
+  ["home","add","view","forms","cn","cnl","cne","dv"].forEach(function(x){$(x).classList.toggle("hide",x!==id)});
+  if(id==="home") renderHome();
+  if(id==="view"){ fillFilters(); render(); }
+  if(id==="forms") renderForms();
+  if(id==="cn") renderCourses();
+  if(id==="cnl") renderNotes();
+  window.scrollTo(0,0);
+}
+
+function renderHome(){
+  syncStatus();
+  var r=groups(data).sort(function(a,b){return b.last-a.last}).slice(0,3);
+  $("recent").innerHTML=r.length?r.map(function(g){return card(g,[],true)}).join(""):'<div class="empty">Abhi koi data nahi hai. Add Data se pehla record daalo.</div>';
+}
+
+function addRow(name,gr,volt,id){
+  var box=$("rows"), last=box.lastElementChild;
+  if(name && last && !id){
+    var li=last.querySelector(".ln");
+    if(!li.value.trim() && !last.querySelector(".g").value.trim() && !last.querySelector(".vv").value.trim()){ li.value=name; last.querySelector(".g").focus(); return; }
+  }
+  var d=document.createElement("div"); d.className="lr";
+  d.innerHTML='<input class="ln" list="lineList" placeholder="DM" autocomplete="off"><input class="g" placeholder="0.512" autocomplete="off"><input class="vv" placeholder="1.8V" autocomplete="off"><button class="x" aria-label="Remove line" onclick="rmRow(this)">&times;</button>';
+  box.appendChild(d); if(id) d.dataset.id=id;
+  d.querySelector(".ln").value=name||""; d.querySelector(".g").value=gr||""; d.querySelector(".vv").value=volt||"";
+  if(id){} else if(name) d.querySelector(".g").focus(); else if(box.children.length>1) d.querySelector(".ln").focus();
+}
+function rmRow(btn){
+  var box=$("rows"); if(box.children.length<=1){ var r=btn.parentNode; r.querySelectorAll("input").forEach(function(i){i.value=""}); return; }
+  btn.parentNode.remove();
+}
+function setMode(edit){
+  $("addRowBtn").classList.toggle("hide",edit); $("chips").classList.toggle("hide",edit); $("chipHint").classList.toggle("hide",edit);
+  document.querySelectorAll("#rows .x").forEach(function(x){x.classList.toggle("hide",edit)});
+}
+function openAdd(){
+  editId=null; editIds=null; $("addTitle").textContent="Add Data"; $("saveBtn").textContent="Save data";
+  $("brand").value=""; $("model").value=""; $("rows").innerHTML="";
+  fillLists(); addRow(); setMode(false); onBM(); show("add"); setTimeout(function(){$("brand").focus()},50);
+}
+function fillLists(){
+  $("brandList").innerHTML=uniq("brand").map(function(b){return '<option value="'+esc(b)+'">'}).join("");
+  var ln={}; data.forEach(function(d){ln[d.line.toLowerCase()]=d.line}); forms.forEach(function(f){ln[f.short.toLowerCase()]=f.short});
+  $("lineList").innerHTML=Object.keys(ln).sort().map(function(k){var f=fullOf(ln[k]);return '<option value="'+esc(ln[k])+'"'+(f?' label="'+esc(f)+'"':'')+'>'}).join("");
+  var bb=$("brand").value.trim().toLowerCase();
+  var pool=bb?data.filter(function(d){return d.brand.toLowerCase()===bb}):data;
+  $("modelList").innerHTML=uniq("model",pool).map(function(b){return '<option value="'+esc(b)+'">'}).join("");
+}
+function onBM(){
+  if(editIds) return;
+  fillLists();
+  var b=$("brand").value.trim().toLowerCase(), m=$("model").value.trim().toLowerCase(), box=$("exist");
+  var n=(b&&m)?data.filter(function(d){return d.brand.toLowerCase()===b&&d.model.toLowerCase()===m}).length:0;
+  box.classList.toggle("hide",!n);
+  if(n) box.textContent="Ye model pehle se saved hai ("+n+(n===1?" line":" lines")+"). Nayi lines usi card me judengi, same line name ho to update hogi.";
+}
+function goSearch(){
+  var v=$("hq").value; $("hq").value=""; show("view"); $("q").value=v; render();
+}
+function saveItem(){
+  var brand=$("brand").value.trim(), model=$("model").value.trim();
+  if(!brand||!model){ toast("Brand aur Model zaroori hai"); return; }
+  var items=[], bad=false;
+  document.querySelectorAll("#rows .lr").forEach(function(r){
+    var l=r.querySelector(".ln").value.trim(), g=r.querySelector(".g").value.trim(), v=r.querySelector(".vv").value.trim();
+    if(!l&&!g&&!v) return;
+    if(!l){ bad=true; return; }
+    items.push({brand:brand,model:model,line:l,gr:g,volt:v,_rid:r.dataset.id||""});
+  });
+  if(bad){ toast("Har row me Line name likho"); return; }
+  if(!items.length){ toast("Kam se kam ek line ka data daalo"); return; }
+  if(editIds){
+    var t0=Date.now();
+    data=data.filter(function(d){return editIds.indexOf(d.id)<0});
+    items.forEach(function(o,k){ o.id=o._rid?Number(o._rid):t0+k; delete o._rid; data.push(o); });
+    persist(); editIds=null; toast("Update ho gaya"); goBack(); return;
+  }
+  var t=Date.now(), upd=0, add=0, key=brand.toLowerCase()+"|"+model.toLowerCase();
+  items.forEach(function(o,k){
+    var ex=data.find(function(d){return d.brand.toLowerCase()+"|"+d.model.toLowerCase()===key&&d.line.toLowerCase()===o.line.toLowerCase()});
+    if(ex){ ex.gr=o.gr; ex.volt=o.volt; upd++; }
+    else { o.id=t+k; delete o._rid; data.push(o); add++; }
+  });
+  persist(); toast((add?add+" line save hui":"")+(add&&upd?", ":"")+(upd?upd+" update hui":""));
+  $("brand").value=""; $("model").value=""; $("rows").innerHTML=""; addRow(); onBM(); $("brand").focus();
+}
+function editGroup(id){
+  var d=data.find(function(x){return x.id===id}); if(!d) return;
+  var k=d.brand.toLowerCase()+"|"+d.model.toLowerCase();
+  var ls=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===k}).sort(function(a,b){return a.id-b.id});
+  editId=id; editIds=ls.map(function(x){return x.id});
+  $("addTitle").textContent="Edit Data"; $("saveBtn").textContent="Update data";
+  $("brand").value=d.brand; $("model").value=d.model; $("rows").innerHTML="";
+  fillLists(); $("exist").classList.add("hide"); ls.forEach(function(x){ addRow(x.line,x.gr,x.volt,x.id); });
+  setMode(false); show("add");
+}
+function delGroup(id){
+  var d=data.find(function(x){return x.id===id}); if(!d) return;
+  var k=d.brand.toLowerCase()+"|"+d.model.toLowerCase();
+  var n=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===k}).length;
+  if(!confirm(d.brand+" "+d.model+" ki saari "+n+" lines delete karni hain?")) return;
+  data=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()!==k});
+  persist(); fillFilters(); render(); toast("Delete ho gaya");
+}
+
+/* filters */
+function fillFilters(){
+  var b=$("fBrand").value, m=$("fModel").value, l=$("fLine").value;
+  setOpts("fBrand","All brands",uniq("brand"),b);
+  brandsList=uniq("brand"); var cur=$("fBrand").value;
+  $("bchips").innerHTML='<button class="bc'+(cur?'':' on')+'" onclick="pickBrand(-1)">All</button>'+brandsList.map(function(x,i){return '<button class="bc'+(x===cur?' on':'')+'" onclick="pickBrand('+i+')">'+esc(x)+'</button>'}).join("");
+  var pool=b?data.filter(function(d){return d.brand.toLowerCase()===b.toLowerCase()}):data;
+  setOpts("fModel","All models",uniq("model",pool),m);
+  setOpts("fLine","All lines",uniq("line"),l);
+}
+function setOpts(id,all,arr,cur){
+  var el=$(id);
+  el.innerHTML='<option value="">'+all+'</option>'+arr.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join("");
+  el.value=arr.indexOf(cur)>-1?cur:"";
+}
+function pickBrand(i){ $("fBrand").value=i<0?"":brandsList[i]; onBrand(); }
+function onBrand(){ $("fModel").value=""; fillFilters(); render(); }
+function resetF(){ $("q").value="";$("fBrand").value="";$("fModel").value="";$("fLine").value="";$("sort").value="new"; fillFilters(); render(); }
+
+/* ek brand+model = ek card */
+function groups(list){
+  var m={},out=[];
+  list.forEach(function(d){
+    var k=d.brand.toLowerCase()+"|"+d.model.toLowerCase();
+    if(!m[k]){ m[k]={brand:d.brand,model:d.model,lines:[],last:0}; out.push(m[k]); }
+    m[k].lines.push(d); if(d.id>m[k].last) m[k].last=d.id;
+  });
+  return out;
+}
+/* smart search: har word brand/model/line/GR/voltage me kahin bhi mile to card aayega */
+function render(){
+  var terms=$("q").value.toLowerCase().split(/\s+/).filter(Boolean);
+  var fb=$("fBrand").value.toLowerCase(), fm=$("fModel").value.toLowerCase(), fl=$("fLine").value.toLowerCase();
+  var res=groups(data).filter(function(g){
+    if(fb&&g.brand.toLowerCase()!==fb) return false;
+    if(fm&&g.model.toLowerCase()!==fm) return false;
+    if(fl&&!g.lines.some(function(l){return l.line.toLowerCase()===fl})) return false;
+    var hay=(g.brand+" "+g.model+" "+g.lines.map(function(l){return l.line+" "+fullOf(l.line)+" "+l.gr+" "+l.volt}).join(" ")).toLowerCase().replace(/\s+/g," ");
+    var compact=hay.replace(/[\s\-_]/g,"");
+    return terms.every(function(t){return hay.indexOf(t)>-1||compact.indexOf(t.replace(/[\-_]/g,""))>-1});
+  }).map(function(g){
+    var ls=fl?g.lines.filter(function(l){return l.line.toLowerCase()===fl}):g.lines;
+    return {brand:g.brand,model:g.model,lines:ls,last:g.last};
+  });
+  var s=$("sort").value;
+  res.sort(function(a,b){
+    if(s==="new") return b.last-a.last; if(s==="old") return a.last-b.last;
+    if(s==="line") return a.lines[0].line.toLowerCase().localeCompare(b.lines[0].line.toLowerCase());
+    return a[s].toLowerCase().localeCompare(b[s].toLowerCase())||b.last-a.last;
+  });
+  var n=0; res.forEach(function(g){n+=g.lines.length});
+  $("vL").classList.toggle("on",viewMode==="list"); $("vC").classList.toggle("on",viewMode!=="list");
+  $("cnt").textContent=res.length+(res.length===1?" model, ":" models, ")+n+(n===1?" line":" lines");
+  $("list").innerHTML=res.length?listHtml(res,terms):'<div class="empty">'+(data.length?"Koi record match nahi hua. Filters ya search badal ke dekho.":"Abhi koi data nahi hai.")+'</div>';
+}
+function hl(text,terms){
+  var t=esc(text||"-"); if(!terms||!terms.length||!text) return t;
+  terms.forEach(function(w){ if(!w) return; var re=new RegExp("("+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig"); t=t.replace(re,function(m){return m.indexOf("&")>-1?m:"<mark>"+m+"</mark>"}); });
+  return t;
+}
+function val(t,terms){ return t?hl(t,terms):'<span class="nil">&mdash;</span>'; }
+function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+function shareImg(id){
+  var d0=data.find(function(x){return x.id===id}); if(!d0) return;
+  var key=d0.brand.toLowerCase()+"|"+d0.model.toLowerCase();
+  var ls=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===key}).sort(function(a,b){return a.id-b.id});
+  toast("Image ban rahi hai...");
+  var ready=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('700 30px "Chakra Petch"'),document.fonts.load('500 24px "Chakra Petch"'),document.fonts.load('700 28px "JetBrains Mono"')]).catch(function(){}):Promise.resolve();
+  ready.then(function(){
+    var W=900,pad=48,rowH=68,top=300,H=top+ls.length*rowH+110;
+    var cv=document.createElement("canvas"); cv.width=W; cv.height=H; var c=cv.getContext("2d");
+    var SANS='"Chakra Petch",system-ui,sans-serif', MONO='"JetBrains Mono",ui-monospace,monospace';
+    c.fillStyle="#ffffff"; c.fillRect(0,0,W,H);
+    c.fillStyle="#ffc400"; c.fillRect(0,0,W,140); c.fillStyle="#0f1720"; c.fillRect(0,140,W,6);
+    c.fillStyle="#0f1720"; rr(c,pad,34,72,72,18); c.fill();
+    c.strokeStyle="#ffc400"; c.lineWidth=5; c.lineCap="round"; c.lineJoin="round"; c.beginPath();
+    c.moveTo(pad+12,70); c.lineTo(pad+26,70); c.lineTo(pad+34,50); c.lineTo(pad+46,90); c.lineTo(pad+54,70); c.lineTo(pad+60,70); c.stroke();
+    c.textBaseline="alphabetic"; c.fillStyle="#0f1720"; c.font='700 44px '+SANS; c.fillText("Line Data",pad+96,70);
+    c.font='500 24px '+SANS; c.fillStyle="rgba(15,23,32,.75)"; c.fillText("Azhari Mobile Service Center",pad+96,102);
+    c.fillStyle="#ffc400"; c.fillRect(pad,184,10,92);
+    c.fillStyle="#66727f"; c.font='500 28px '+SANS; c.fillText(d0.brand,pad+30,212);
+    var fs=58; c.font='700 '+fs+'px '+SANS; while(c.measureText(d0.model).width>W-pad*2-30&&fs>26){ fs-=2; c.font='700 '+fs+'px '+SANS; }
+    c.fillStyle="#0f1720"; c.fillText(d0.model,pad+30,266);
+    c.fillStyle="#dde2e7"; c.fillRect(pad,top-12,W-pad*2,2);
+    ls.forEach(function(d,i){
+      var cy=top+i*rowH+rowH/2, parts=[{t:d.line,f:'700 32px '+SANS,c:"#0f1720"}];
+      var ff=showFull?fullOf(d.line):""; if(ff) parts.push({t:ff,f:'500 24px '+SANS,c:"#66727f"});
+      if(d.gr){ parts.push({t:"- GR",f:'500 24px '+SANS,c:"#66727f"}); parts.push({t:d.gr,f:'700 30px '+MONO,c:"#0f1720"}); }
+      if(d.volt){ parts.push({t:(d.gr?"":"- ")+"V -",f:'500 24px '+SANS,c:"#66727f"}); parts.push({t:d.volt,f:'700 30px '+MONO,c:"#0f1720"}); }
+      var maxW=W-pad*2-44, sc=1, tot=0;
+      for(;sc>0.5;sc-=0.05){ tot=0; parts.forEach(function(p){ c.font=p.f.replace(/(\d+)px/,function(m,n){return Math.round(n*sc)+"px"}); tot+=c.measureText(p.t).width+14; }); if(tot-14<=maxW) break; }
+      c.fillStyle=dotColor(d.line); c.beginPath(); c.arc(pad+8,cy,9,0,Math.PI*2); c.fill();
+      var x=pad+36;
+      parts.forEach(function(p){ c.font=p.f.replace(/(\d+)px/,function(m,n){return Math.round(n*sc)+"px"}); c.fillStyle=p.c; c.fillText(p.t,x,cy+11); x+=c.measureText(p.t).width+14; });
+      if(i<ls.length-1){ c.fillStyle="#eceff2"; c.fillRect(pad,top+(i+1)*rowH-1,W-pad*2,2); }
+    });
+    c.fillStyle="#dde2e7"; c.fillRect(pad,H-84,W-pad*2,2);
+    c.fillStyle="#66727f"; c.font='500 24px '+SANS; c.fillText(ls.length+(ls.length===1?" line":" lines"),pad,H-40);
+    var dt=new Date().toLocaleDateString("en-GB"); c.textAlign="right"; c.fillText(dt,W-pad,H-40); c.textAlign="left";
+    cv.toBlob(function(b){
+      if(!b){ toast("Image nahi ban paayi"); return; }
+      var name=(d0.brand+"-"+d0.model).replace(/[^\w\-]+/g,"_")+".png", f;
+      try{ f=new File([b],name,{type:"image/png"}); }catch(e){ f=null; }
+      if(f&&navigator.canShare&&navigator.canShare({files:[f]})){ navigator.share({files:[f],title:d0.brand+" "+d0.model}).catch(function(){}); return; }
+      var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image download ho gayi");
+    },"image/png");
+  });
+}
+/* ---------- Course Notes ---------- */
+function loadCN(){
+  try{ var o=JSON.parse(localStorage.getItem("course_notes_v1")||"{}"); cn={courses:Array.isArray(o.courses)?o.courses:[],notes:Array.isArray(o.notes)?o.notes:[]}; }catch(e){ cn={courses:[],notes:[]}; }
+}
+function persistCN(){ try{ localStorage.setItem("course_notes_v1",JSON.stringify(cn)); }catch(e){ toast("Save nahi ho paya, storage full ho sakta hai"); } cloudPush("courses"); cloudPush("notes"); }
+function courseOf(id){ return cn.courses.find(function(c){return c.id===id}); }
+function idb(){ return new Promise(function(res,rej){ if(!window.indexedDB){ rej(); return; } var r=indexedDB.open("line_data_db",1); r.onupgradeneeded=function(){ r.result.createObjectStore("photos"); }; r.onsuccess=function(){res(r.result)}; r.onerror=function(){rej(r.error)}; }); }
+function photoPut(id,d){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").put(d,id); t.oncomplete=res; t.onerror=rej; }); }); }
+function photoGet(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var q=db.transaction("photos","readonly").objectStore("photos").get(id); q.onsuccess=function(){res(q.result)}; q.onerror=rej; }); }); }
+function photoDel(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").delete(id); t.oncomplete=res; t.onerror=rej; }); }); }
+
+function addCourse(){
+  var n=$("cnName").value.trim(); if(!n){ toast("Course ka naam likho"); return; }
+  if(cn.courses.some(function(c){return c.name.toLowerCase()===n.toLowerCase()})){ toast("Ye course pehle se hai"); return; }
+  cn.courses.push({id:Date.now(),name:n}); persistCN(); $("cnName").value=""; renderCourses(); toast("Course ban gaya");
+}
+function renderCourses(){
+  $("cnCnt").textContent=cn.courses.length+(cn.courses.length===1?" course":" courses");
+  var ed='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>';
+  var de='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+  $("cnList").innerHTML=cn.courses.length?cn.courses.slice().reverse().map(function(c){
+    var n=cn.notes.filter(function(x){return x.course===c.id}).length;
+    return '<div class="cc" onclick="openCourse('+c.id+')"><div class="cb"><b>'+esc(c.name)+'</b><span class="s">'+n+(n===1?' note':' notes')+'</span></div><div class="pa" onclick="event.stopPropagation()"><button onclick="renameCourse('+c.id+')" aria-label="Rename">'+ed+'</button><button class="x" onclick="delCourse('+c.id+')" aria-label="Delete">'+de+'</button></div></div>';
+  }).join(""):'<div class="empty">Abhi koi course nahi hai. Upar course ka naam likh ke jodo.</div>';
+}
+function renameCourse(id){
+  var c=courseOf(id); if(!c) return; var n=prompt("Course ka naam",c.name);
+  if(n&&n.trim()){ c.name=n.trim(); persistCN(); renderCourses(); }
+}
+function delCourse(id){
+  var c=courseOf(id); if(!c) return;
+  var ns=cn.notes.filter(function(x){return x.course===id});
+  if(!confirm(c.name+" aur uske "+ns.length+" notes delete karne hain?")) return;
+  ns.forEach(function(x){ if(x.photo) photoDel(x.id).catch(function(){}); });
+  cn.notes=cn.notes.filter(function(x){return x.course!==id}); cn.courses=cn.courses.filter(function(x){return x.id!==id});
+  persistCN(); renderCourses(); toast("Delete ho gaya");
+}
+function openCourse(id){ curCourse=id; curCat=""; openNote=null; $("ncQ").value=""; show("cnl"); }
+function renderNotes(){
+  var c=courseOf(curCourse); if(!c){ show("cn"); return; }
+  $("cnlTitle").textContent=c.name;
+  var all=cn.notes.filter(function(n){return n.course===curCourse});
+  var cats={}; all.forEach(function(n){ if(n.cat) cats[n.cat.toLowerCase()]=n.cat; });
+  ncCats=Object.keys(cats).sort().map(function(k){return cats[k]});
+  if(curCat&&ncCats.indexOf(curCat)<0) curCat="";
+  $("ncChips").innerHTML='<button class="bc'+(curCat?'':' on')+'" onclick="pickNcCat(-1)">All</button>'+ncCats.map(function(x,i){return '<button class="bc'+(x===curCat?' on':'')+'" onclick="pickNcCat('+i+')">'+esc(x)+'</button>'}).join("");
+  var terms=($("ncQ").value||"").toLowerCase().split(/\s+/).filter(Boolean);
+  var list=all.filter(function(n){
+    if(curCat&&n.cat!==curCat) return false;
+    var h=(n.title+" "+n.cat+" "+n.body).toLowerCase(); return terms.every(function(t){return h.indexOf(t)>-1});
+  }).sort(function(a,b){ return (b.pin?1:0)-(a.pin?1:0)||b.ts-a.ts; });
+  $("ncCnt").textContent=terms.length||curCat?list.length+" of "+all.length+" notes":all.length+(all.length===1?" note":" notes");
+  $("ncList").innerHTML=list.length?list.map(function(n){ return noteCard(n,terms); }).join(""):'<div class="empty">'+(all.length?"Koi note match nahi hua.":"Abhi koi note nahi hai. + New note dabao.")+'</div>';
+  if(openNote){ var n=cn.notes.find(function(x){return x.id===openNote}); if(n&&n.photo){ photoGet(n.id).then(function(d){ var el=document.getElementById("np"+n.id); if(el&&d) el.src=d; }).catch(function(){}); } }
+}
+function noteCard(n,terms){
+  var op=openNote===n.id;
+  var h='<div class="nc'+(op?' op':'')+(n.pin?' pn':'')+'" onclick="toggleNote('+n.id+')"><div class="nh"><div class="nt">'+hl(n.title,terms)+'</div>'+(n.pin?'<span class="st">&#9733;</span>':'')+'</div>'+
+  '<div class="nm">'+(n.cat?'<span class="tg">'+hl(n.cat,terms)+'</span>':'')+'<span>'+new Date(n.ts).toLocaleDateString("en-GB")+'</span>'+(n.photo?'<span>Photo</span>':'')+'</div>'+
+  (n.body?'<div class="nb">'+hl(n.body,terms)+'</div>':'');
+  if(op){
+    if(n.photo) h+='<img class="np" id="np'+n.id+'" alt="Notebook photo">';
+    h+='<div class="na" onclick="event.stopPropagation()"><button onclick="pinNote('+n.id+')">'+(n.pin?'Unpin':'Pin')+'</button><button onclick="copyNote('+n.id+')">Copy</button><button onclick="shareNoteImg('+n.id+')">Image</button><button onclick="shareNoteText('+n.id+')">Text</button><button onclick="editNote('+n.id+')">Edit</button><button class="x" onclick="delNote('+n.id+')">Delete</button></div>';
+  }
+  return h+'</div>';
+}
+function toggleNote(id){ openNote=openNote===id?null:id; renderNotes(); }
+function pickNcCat(i){ curCat=i<0?"":ncCats[i]; renderNotes(); }
+function pinNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(n){ n.pin=!n.pin; persistCN(); renderNotes(); } }
+function delNote(id){
+  if(!confirm("Ye note delete karna hai?")) return;
+  var n=cn.notes.find(function(x){return x.id===id}); if(n&&n.photo) photoDel(id).catch(function(){});
+  cn.notes=cn.notes.filter(function(x){return x.id!==id}); openNote=null; persistCN(); renderNotes(); toast("Delete ho gaya");
+}
+function noteText(n){ return n.title+(n.cat?"\n["+n.cat+"]":"")+(n.body?"\n\n"+n.body:""); }
+function copyNote(id){
+  var n=cn.notes.find(function(x){return x.id===id}); if(!n) return; var t=noteText(n);
+  function fb(){ var a=document.createElement("textarea"); a.value=t; document.body.appendChild(a); a.select(); try{ document.execCommand("copy"); toast("Copy ho gaya"); }catch(e){ toast("Copy nahi hua"); } a.remove(); }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast("Copy ho gaya"); },fb); else fb();
+}
+function shareNoteText(id){
+  var n=cn.notes.find(function(x){return x.id===id}); if(!n) return;
+  if(navigator.share) navigator.share({title:n.title,text:noteText(n)}).catch(function(){}); else copyNote(id);
+}
+function fillCats(){
+  var cid=Number($("neCourse").value), m={};
+  cn.notes.filter(function(n){return n.course===cid&&n.cat}).forEach(function(n){ m[n.cat.toLowerCase()]=n.cat; });
+  $("catList").innerHTML=Object.keys(m).sort().map(function(k){return '<option value="'+esc(m[k])+'">'}).join("");
+}
+function fillNoteForm(n){
+  $("neCourse").innerHTML=cn.courses.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join("");
+  $("neCourse").value=String(n?n.course:curCourse); fillCats();
+  $("neCat").value=n?n.cat:curCat; $("neTitle").value=n?n.title:""; $("neBody").value=n?n.body:"";
+  nePhoto=null; neMode="none"; $("nePhoto").innerHTML="";
+  if(n&&n.photo){ neMode="keep"; photoGet(n.id).then(function(d){ if(d&&neMode==="keep"){ nePhoto=d; drawPhotoPrev(); } }).catch(function(){}); }
+  $("cneTitle").textContent=n?"Edit note":"New note";
+}
+function newNote(){ editNoteId=null; fillNoteForm(null); show("cne"); }
+function editNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(!n) return; editNoteId=id; fillNoteForm(n); show("cne"); }
+function drawPhotoPrev(){ $("nePhoto").innerHTML=nePhoto?'<img class="np" style="margin:0 0 8px" src="'+nePhoto+'" alt="Photo"><button class="ghost" style="margin:0 0 6px" onclick="removePhoto()">Photo hatao</button>':""; }
+function removePhoto(){ nePhoto=null; neMode="none"; drawPhotoPrev(); }
+function pickPhoto(e){
+  var f=e.target.files[0]; if(!f) return; var r=new FileReader();
+  r.onload=function(){ var im=new Image(); im.onload=function(){
+    var m=1280, k=Math.min(1,m/Math.max(im.width,im.height)), cv=document.createElement("canvas"); cv.width=Math.round(im.width*k); cv.height=Math.round(im.height*k);
+    cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height); nePhoto=cv.toDataURL("image/jpeg",0.72); neMode="new"; drawPhotoPrev();
+  }; im.onerror=function(){ toast("Photo khul nahi paayi"); }; im.src=r.result; };
+  r.readAsDataURL(f); e.target.value="";
+}
+function saveNote(){
+  var course=Number($("neCourse").value), title=$("neTitle").value.trim(), body=$("neBody").value.trim(), cat=$("neCat").value.trim();
+  if(!course){ toast("Pehle course banao"); return; }
+  if(!title){ toast("Title likho"); return; }
+  var n=editNoteId?cn.notes.find(function(x){return x.id===editNoteId}):null, had=n?n.photo:false;
+  if(n){ n.course=course; n.cat=cat; n.title=title; n.body=body; }
+  else { n={id:Date.now(),course:course,cat:cat,title:title,body:body,pin:false,ts:Date.now(),photo:false}; cn.notes.push(n); }
+  var job=Promise.resolve();
+  if(neMode==="new"){ n.photo=true; job=photoPut(n.id,nePhoto); }
+  else if(neMode==="none"&&had){ n.photo=false; job=photoDel(n.id); }
+  job.catch(function(){ n.photo=had&&neMode!=="none"; toast("Photo save nahi hui"); }).then(function(){
+    persistCN(); curCourse=course; openNote=n.id; editNoteId=null; toast("Note save ho gaya"); goBack();
+  });
+}
+function wrapT(c,text,maxW){
+  var out=[]; String(text).split("\n").forEach(function(p){
+    if(!p.trim()){ out.push(""); return; }
+    var cur=""; p.split(/\s+/).forEach(function(w){ var t=cur?cur+" "+w:w; if(c.measureText(t).width>maxW&&cur){ out.push(cur); cur=w; } else cur=t; }); out.push(cur);
+  }); return out;
+}
+function shareNoteImg(id){
+  var n=cn.notes.find(function(x){return x.id===id}); if(!n) return; var co=courseOf(n.course);
+  toast("Image ban rahi hai...");
+  var ready=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('700 30px "Chakra Petch"'),document.fonts.load('400 30px "Chakra Petch"')]).catch(function(){}):Promise.resolve();
+  ready.then(function(){
+    var W=900,pad=48,SANS='"Chakra Petch",system-ui,sans-serif';
+    var cv=document.createElement("canvas"); cv.width=W; cv.height=400; var c=cv.getContext("2d");
+    c.font='700 46px '+SANS; var tl=wrapT(c,n.title,W-pad*2-30);
+    c.font='400 30px '+SANS; var bl=n.body?wrapT(c,n.body,W-pad*2):[];
+    var H=Math.min(9000,146+120+tl.length*58+(bl.length?36+bl.length*44:0)+110);
+    cv.height=H; c=cv.getContext("2d"); c.textBaseline="alphabetic";
+    c.fillStyle="#fff"; c.fillRect(0,0,W,H); c.fillStyle="#ffc400"; c.fillRect(0,0,W,140); c.fillStyle="#0f1720"; c.fillRect(0,140,W,6);
+    rr(c,pad,34,72,72,18); c.fill();
+    c.strokeStyle="#ffc400"; c.lineWidth=5; c.lineCap="round"; c.lineJoin="round"; c.beginPath(); c.moveTo(pad+12,70); c.lineTo(pad+26,70); c.lineTo(pad+34,50); c.lineTo(pad+46,90); c.lineTo(pad+54,70); c.lineTo(pad+60,70); c.stroke();
+    c.fillStyle="#0f1720"; c.font='700 44px '+SANS; c.fillText("Line Data",pad+96,70);
+    c.font='500 24px '+SANS; c.fillStyle="rgba(15,23,32,.75)"; c.fillText("Azhari Mobile Service Center",pad+96,102);
+    var y=206; c.fillStyle="#66727f"; c.font='500 26px '+SANS; c.fillText((co?co.name:"")+(n.cat?"  /  "+n.cat:""),pad,y);
+    y+=22; c.fillStyle="#ffc400"; c.fillRect(pad,y,10,tl.length*58-6); c.fillStyle="#0f1720"; c.font='700 46px '+SANS;
+    tl.forEach(function(l,i){ c.fillText(l,pad+30,y+44+i*58); }); y+=tl.length*58+20;
+    if(bl.length){ c.fillStyle="#dde2e7"; c.fillRect(pad,y,W-pad*2,2); y+=36; c.fillStyle="#1c2733"; c.font='400 30px '+SANS; bl.forEach(function(l,i){ c.fillText(l,pad,y+i*44); }); }
+    c.fillStyle="#dde2e7"; c.fillRect(pad,H-84,W-pad*2,2); c.fillStyle="#66727f"; c.font='500 24px '+SANS;
+    c.fillText("Course Notes",pad,H-40); c.textAlign="right"; c.fillText(new Date(n.ts).toLocaleDateString("en-GB"),W-pad,H-40); c.textAlign="left";
+    cv.toBlob(function(b){
+      if(!b){ toast("Image nahi ban paayi"); return; }
+      var name=n.title.replace(/[^\w\-]+/g,"_").slice(0,40)+".png", f; try{ f=new File([b],name,{type:"image/png"}); }catch(e){ f=null; }
+      if(f&&navigator.canShare&&navigator.canShare({files:[f]})){ navigator.share({files:[f],title:n.title}).catch(function(){}); return; }
+      var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image download ho gayi");
+    },"image/png");
+  });
+}
+/* ---------- Voltage divider ---------- */
+function dvNum(id){ var v=$(id).value.trim().replace(",","."); if(v==="") return null; var n=Number(v); return isFinite(n)?n:NaN; }
+function dvSig(n){ return String(parseFloat(n.toPrecision(4))); }
+function dvV(v){ return dvSig(v)+" V"; }
+function dvR(o){ if(o>=1e6) return dvSig(o/1e6)+" M\u03A9"; if(o>=1e3) return dvSig(o/1e3)+" k\u03A9"; return dvSig(o)+" \u03A9"; }
+function dvI(a){ if(a>=1) return dvSig(a)+" A"; if(a>=1e-3) return dvSig(a*1e3)+" mA"; return dvSig(a*1e6)+" \u00B5A"; }
+function dvP(w){ if(w>=1) return dvSig(w)+" W"; if(w>=1e-3) return dvSig(w*1e3)+" mW"; return dvSig(w*1e6)+" \u00B5W"; }
+function dvClear(){ ["dvVin","dvVout","dvR1","dvR2"].forEach(function(i){$(i).value=""}); $("dvRes").innerHTML=""; }
+function dvCalc(){
+  var vin=dvNum("dvVin"), vout=dvNum("dvVout"), r1=dvNum("dvR1"), r2=dvNum("dvR2"), box=$("dvRes");
+  function msg(t){ box.innerHTML='<div class="dmsg">'+t+'</div>'; }
+  if(r1!==null&&!isNaN(r1)) r1*=Number($("dvU1").value);
+  if(r2!==null&&!isNaN(r2)) r2*=Number($("dvU2").value);
+  var vals=[vin,vout,r1,r2], blanks=vals.filter(function(v){return v===null}).length;
+  if(blanks===4){ box.innerHTML=""; return; }
+  if(vals.some(function(v){return v!==null&&(isNaN(v)||v<=0)})){ msg("Sirf sahi positive number likho."); return; }
+  if(blanks>1){ msg("Teen cheezein bharo, jo nikalna hai wo khali chhodo."); return; }
+  if(blanks===0){ msg("Ek cheez khali chhodo, wahi nikal jayegi."); return; }
+  var what, res;
+  if(vout===null){ vout=vin*r2/(r1+r2); what="Vout"; res=dvV(vout); }
+  else if(vin===null){ vin=vout*(r1+r2)/r2; what="Vin"; res=dvV(vin); }
+  else {
+    if(vout>=vin){ msg("Vout, Vin se chhota hona chahiye."); return; }
+    if(r1===null){ r1=r2*(vin-vout)/vout; what="R1"; res=dvR(r1); }
+    else { r2=r1*vout/(vin-vout); what="R2"; res=dvR(r2); }
+  }
+  var i=vin/(r1+r2);
+  box.innerHTML='<div class="dm"><small>'+what+' =</small><b>'+res+'</b></div>'+
+  '<div class="dfs"><div><span>Vin</span><b>'+dvV(vin)+'</b></div><div><span>Vout</span><b>'+dvV(vout)+'</b></div>'+
+  '<div><span>R1</span><b>'+dvR(r1)+'</b></div><div><span>R2</span><b>'+dvR(r2)+'</b></div>'+
+  '<div><span>Current</span><b>'+dvI(i)+'</b></div><div><span>Vout / Vin</span><b>'+dvSig(vout/vin*100)+' %</b></div>'+
+  '<div><span>Power R1</span><b>'+dvP(i*i*r1)+'</b></div><div><span>Power R2</span><b>'+dvP(i*i*r2)+'</b></div></div>';
+}
+/* ---------- Firebase cloud sync ---------- */
+var FB={on:false,off:false,user:null,db:null,auth:null,first:{},state:{},unsubs:[]};
+var FBCFG={apiKey:"AIzaSyCXpGe5aVNOklLyTTzu3NfksiwY65LTuKc",authDomain:"repairing-data-f8070.firebaseapp.com",projectId:"repairing-data-f8070",storageBucket:"repairing-data-f8070.firebasestorage.app",messagingSenderId:"153022559127",appId:"1:153022559127:web:0e0a6060c838e96b668ad2"};
+var CNAMES=["lines","forms","courses","notes"];
+function cArr(n){ return n==="lines"?data:n==="forms"?forms:n==="courses"?cn.courses:cn.notes; }
+function cSet(n,a){
+  if(n==="lines"){ data=a; try{ localStorage.setItem(KEY,JSON.stringify(data)); }catch(e){} }
+  else if(n==="forms"){ forms=a; try{ localStorage.setItem("line_forms_v1",JSON.stringify(forms)); }catch(e){} }
+  else {
+    if(n==="courses") cn.courses=a;
+    else { var pf={}; cn.notes.forEach(function(x){pf[x.id]=x.photo}); a.forEach(function(x){x.photo=!!pf[x.id]}); cn.notes=a; }
+    try{ localStorage.setItem("course_notes_v1",JSON.stringify(cn)); }catch(e){}
+  }
+}
+function cClean(n,o){ var c=JSON.parse(JSON.stringify(o)); if(n==="notes") delete c.photo; return c; }
+function keyStr(o){ return JSON.stringify(o,Object.keys(o).sort()); }
+function syncStatus(){
+  var t=$("syncTxt"); if(!t) return;
+  t.textContent=FB.off?"Cloud sync band (offline mode)":FB.user?"Cloud sync chalu: "+FB.user.email:"";
+}
+function refreshUI(){
+  if(cur==="home") renderHome(); else if(cur==="view"){ fillFilters(); render(); }
+  else if(cur==="forms") renderForms(); else if(cur==="cn") renderCourses(); else if(cur==="cnl") renderNotes();
+}
+function cloudPush(n){
+  if(!FB.on||!FB.user||!FB.first[n]) return;
+  var arr=cArr(n), cur0=FB.state[n]||{}, ops=[], ids={};
+  arr.forEach(function(o){ var c=cClean(n,o), id=String(c.id); ids[id]=1; if(cur0[id]!==keyStr(c)) ops.push({id:id,c:c}); });
+  Object.keys(cur0).forEach(function(id){ if(!ids[id]) ops.push({id:id,d:1}); });
+  for(var i=0;i<ops.length;i+=400){
+    var b=FB.db.batch();
+    ops.slice(i,i+400).forEach(function(op){ var r=FB.db.collection(n).doc(op.id); if(op.d) b.delete(r); else b.set(r,op.c); });
+    b.commit().catch(function(){ toast("Cloud sync me dikkat, net check karo"); });
+  }
+}
+function startSync(){
+  FB.on=true;
+  CNAMES.forEach(function(n){
+    FB.unsubs.push(FB.db.collection(n).onSnapshot(function(snap){
+      var remote=[], st={};
+      snap.forEach(function(d){ var o=d.data(); remote.push(o); st[String(o.id)]=keyStr(o); });
+      if(!FB.first[n]&&snap.metadata.fromCache&&snap.empty) return;
+      FB.state[n]=st;
+      if(!FB.first[n]){
+        var fl="ld_cloud_init_"+n, merged=remote;
+        if(localStorage.getItem(fl)!=="1"){
+          var have={}; remote.forEach(function(o){have[o.id]=1});
+          merged=remote.concat(cArr(n).filter(function(o){return !have[o.id]}).map(function(o){return cClean(n,o)}));
+          try{ localStorage.setItem(fl,"1"); }catch(e){}
+        }
+        cSet(n,merged); FB.first[n]=true; cloudPush(n);
+      } else cSet(n,remote);
+      refreshUI();
+    },function(){ toast("Cloud se connect nahi ho paaya"); }));
+  });
+}
+function stopSync(){ FB.unsubs.forEach(function(u){try{u()}catch(e){}}); FB.unsubs=[]; FB.on=false; FB.first={}; FB.state={}; }
+function cloudInit(){
+  var lo=document.getElementById("login");
+  if(typeof firebase==="undefined"){ FB.off=true; lo.classList.add("hide"); $("lkForgot").classList.add("hide"); syncStatus(); ensureMpin(); return; }
+  try{
+    firebase.initializeApp(FBCFG); FB.auth=firebase.auth(); FB.db=firebase.firestore();
+    try{ FB.db.settings({experimentalAutoDetectLongPolling:true,merge:true}); }catch(e){}
+    try{ FB.db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
+  }catch(e){ FB.off=true; lo.classList.add("hide"); syncStatus(); return; }
+  setTimeout(function(){ if(!FB.user&&!$("lgWait").classList.contains("hide")){ $("lgWait").classList.add("hide"); $("lgForm").classList.remove("hide"); } },5000);
+  FB.auth.onAuthStateChanged(function(u){
+    FB.user=u;
+    if(u){ lo.classList.add("hide"); startSync(); ensureMpin(); }
+    else { stopSync(); lo.classList.remove("hide"); $("lgWait").classList.add("hide"); $("lgForm").classList.remove("hide"); }
+    syncStatus();
+  });
+}
+function doLogin(){
+  var em=$("lgEmail").value.trim(), pw=$("lgPass").value, er=$("lgErr");
+  if(!em||!pw){ er.textContent="Email aur password dono likho"; return; }
+  er.textContent=""; $("lgBtn").textContent="Login ho raha hai..."; $("lgBtn").disabled=true;
+  FB.auth.signInWithEmailAndPassword(em,pw).then(function(){ $("lgPass").value=""; }).catch(function(e){
+    var c=e&&e.code||"";
+    er.textContent=/invalid|wrong|user-not-found/.test(c)?"Email ya password galat hai":c==="auth/network-request-failed"?"Internet check karo":c==="auth/too-many-requests"?"Bahut try ho gaye, thodi der baad try karo":"Login nahi hua: "+c;
+  }).then(function(){ $("lgBtn").textContent="Login"; $("lgBtn").disabled=false; });
+}
+function doLogout(){
+  if(!FB.auth||!confirm("Logout karna hai? Phone me data rahega, par dobara login aur naya MPIN banana padega.")) return;
+  try{ localStorage.removeItem("ld_mpin"); }catch(e){}
+  FB.auth.signOut();
+}
+/* ---------- MPIN lock ---------- */
+var lk={mode:"enter",buf:"",first:"",tries:0,until:0}, hiddenAt=0;
+function cyrb53(str,seed){ var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed; for(var i=0,ch;i<str.length;i++){ ch=str.charCodeAt(i); h1=Math.imul(h1^ch,2654435761); h2=Math.imul(h2^ch,1597334677); } h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909); h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909); return 4294967296*(2097151&h2)+(h1>>>0); }
+function mpHash(pin,salt){ var h=pin+salt; for(var i=0;i<1500;i++) h=String(cyrb53(h+salt,i)); return h; }
+function mpGet(){ try{ return JSON.parse(localStorage.getItem("ld_mpin")||"null"); }catch(e){ return null; } }
+function mpSave(pin){ var salt=Math.random().toString(36).slice(2)+Date.now().toString(36); try{ localStorage.setItem("ld_mpin",JSON.stringify({s:salt,h:mpHash(pin,salt)})); }catch(e){ toast("MPIN save nahi hua"); } }
+function mpCheck(pin){ var o=mpGet(); return !!o&&mpHash(pin,o.s)===o.h; }
+var LKT={enter:"MPIN daalo",old:"Purana MPIN daalo",set1:"Naya MPIN banao (4 digit)",set2:"MPIN dobara daalo"};
+function lkDraw(){ var d=document.querySelectorAll("#lkDots i"); for(var i=0;i<d.length;i++) d[i].className=i<lk.buf.length?"on":""; }
+function lkOpen(mode,cancelable){
+  lk.mode=mode; lk.buf=""; lk.first=""; $("lkErr").textContent=""; $("lkTitle").textContent=LKT[mode]; lkDraw();
+  $("lkCancel").classList.toggle("hide",!cancelable); $("lkForgot").classList.toggle("hide",mode!=="enter"||FB.off);
+  $("lock").classList.remove("hide");
+}
+function lkClose(){ $("lock").classList.add("hide"); lk.buf=""; }
+function ensureMpin(){ if(!mpGet()&&$("lock").classList.contains("hide")) lkOpen("set1",false); }
+function changeMpin(){ lkOpen(mpGet()?"old":"set1",true); }
+function lkKey(k){
+  if(Date.now()<lk.until){ $("lkErr").textContent="Thodi der baad try karo"; return; }
+  if(k==="b") lk.buf=lk.buf.slice(0,-1); else if(lk.buf.length<4) lk.buf+=k;
+  lkDraw(); if(lk.buf.length===4) setTimeout(lkDone,120);
+}
+function lkBad(msg){
+  lk.buf=""; lkDraw(); $("lkErr").textContent=msg; try{ navigator.vibrate&&navigator.vibrate(80); }catch(e){}
+}
+function lkDone(){
+  var b=lk.buf; lk.buf=""; lkDraw(); $("lkErr").textContent="";
+  if(lk.mode==="enter"||lk.mode==="old"){
+    if(mpCheck(b)){ lk.tries=0; if(lk.mode==="enter") lkClose(); else { lk.mode="set1"; $("lkTitle").textContent=LKT.set1; } }
+    else { lk.tries++; if(lk.tries>=5){ lk.tries=0; lk.until=Date.now()+30000; lkBad("5 baar galat, 30 second ruko"); } else lkBad("Galat MPIN"); }
+  } else if(lk.mode==="set1"){ lk.first=b; lk.mode="set2"; $("lkTitle").textContent=LKT.set2; }
+  else if(lk.mode==="set2"){
+    if(b===lk.first){ mpSave(b); lkClose(); toast("MPIN set ho gaya"); }
+    else { lk.mode="set1"; $("lkTitle").textContent=LKT.set1; lkBad("MPIN match nahi hua, dobara banao"); }
+  }
+}
+function lkForgot(){
+  if(!confirm("MPIN reset karne ke liye logout hoga, phir login karke naya MPIN banana hoga. Data safe rahega. Aage badhna hai?")) return;
+  try{ localStorage.removeItem("ld_mpin"); }catch(e){}
+  lkClose(); if(FB.auth) FB.auth.signOut();
+}
+if(document.addEventListener) document.addEventListener("visibilitychange",function(){
+  if(document.hidden) hiddenAt=Date.now();
+  else if(hiddenAt&&Date.now()-hiddenAt>120000&&mpGet()&&$("lock").classList.contains("hide")) lkOpen("enter",false);
+});
+function dotColor(n){
+  var k=(n||"").toLowerCase().replace(/[\s\-_]/g,"");
+  return {dm:"#2f6fed",dp:"#8a4fff",batid:"#f08c00",thermal:"#e8453c"}[k]||"#8a96a3";
+}
+function loadForms(){
+  try{ forms=JSON.parse(localStorage.getItem("line_forms_v1")||"[]"); if(!Array.isArray(forms)) forms=[]; }catch(e){ forms=[]; }
+  try{ showFull=localStorage.getItem("ld_showfull")==="1"; }catch(e){}
+}
+function persistForms(){ try{ localStorage.setItem("line_forms_v1",JSON.stringify(forms)); }catch(e){ toast("Save nahi ho paya"); } cloudPush("forms"); }
+function fullOf(l){ var k=(l||"").trim().toLowerCase(); var f=forms.find(function(x){return x.short.toLowerCase()===k}); return f?f.full:""; }
+function renderForms(){
+  $("frSw").checked=showFull;
+  var have={}; forms.forEach(function(f){have[f.short.toLowerCase()]=1});
+  frNames=uniq("line").filter(function(n){return !have[n.toLowerCase()]});
+  $("frHint").classList.toggle("hide",!frNames.length);
+  $("frChips").innerHTML=frNames.map(function(n,i){return '<button onclick="pickShort('+i+')">'+esc(n)+'</button>'}).join("");
+  var terms=($("frQ").value||"").toLowerCase().split(/\s+/).filter(Boolean);
+  var list=forms.filter(function(f){var h=(f.short+" "+f.full).toLowerCase(); return terms.every(function(t){return h.indexOf(t)>-1})}).sort(function(a,b){return a.short.toLowerCase().localeCompare(b.short.toLowerCase())});
+  $("frCnt").textContent=terms.length?list.length+" of "+forms.length+" full forms":list.length+(list.length===1?" full form":" full forms");
+  var ed='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>';
+  var de='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+  $("frList").innerHTML=list.length?list.map(function(f){
+    return '<div class="fr"><span class="fs">'+esc(f.short)+'</span><span class="ft">'+esc(f.full)+'</span><div class="pa"><button onclick="editForm('+f.id+')" aria-label="Edit">'+ed+'</button><button class="x" onclick="delForm('+f.id+')" aria-label="Delete">'+de+'</button></div></div>';
+  }).join(""):'<div class="empty" style="border:none">'+(forms.length?"Koi full form match nahi hua.":"Abhi koi full form nahi hai. Upar line name aur uska full form likh ke save karo.")+'</div>';
+}
+function pickShort(i){ $("frShort").value=frNames[i]; $("frFull").focus(); }
+function resetForm(){ editFormId=null; $("frShort").value=""; $("frFull").value=""; $("frSave").textContent="Save full form"; $("frCancel").classList.add("hide"); }
+function saveForm(){
+  var sh=$("frShort").value.trim(), fu=$("frFull").value.trim();
+  if(!sh||!fu){ toast("Line name aur full form dono likho"); return; }
+  var ex=forms.find(function(f){return f.short.toLowerCase()===sh.toLowerCase()&&f.id!==editFormId});
+  if(editFormId){
+    var t=forms.find(function(f){return f.id===editFormId});
+    if(t){ if(ex){ toast("Ye line name pehle se hai"); return; } t.short=sh; t.full=fu; }
+  } else if(ex){ ex.short=sh; ex.full=fu; }
+  else forms.push({id:Date.now(),short:sh,full:fu});
+  persistForms(); resetForm(); renderForms(); toast("Save ho gaya");
+}
+function editForm(id){
+  var f=forms.find(function(x){return x.id===id}); if(!f) return;
+  editFormId=id; $("frShort").value=f.short; $("frFull").value=f.full;
+  $("frSave").textContent="Update full form"; $("frCancel").classList.remove("hide"); window.scrollTo(0,0);
+}
+function delForm(id){
+  if(!confirm("Ye full form delete karna hai?")) return;
+  forms=forms.filter(function(f){return f.id!==id}); persistForms(); renderForms(); toast("Delete ho gaya");
+}
+function setShowFull(){ showFull=$("frSw").checked; try{ localStorage.setItem("ld_showfull",showFull?"1":"0"); }catch(e){} }
+function lineRows(g,terms){
+  return g.lines.slice().sort(function(a,b){return a.id-b.id}).map(function(d){
+    var h='<div class="lx"><i class="dt" style="background:'+dotColor(d.line)+'"></i><b class="n1">'+hl(d.line,terms)+'</b>';
+    var ff=showFull?fullOf(d.line):""; if(ff) h+='<span class="ff">'+hl(ff,terms)+'</span>';
+    if(d.gr) h+='<span class="kk">- GR</span><b class="rv">'+hl(d.gr,terms)+'</b>';
+    if(d.volt) h+=(d.gr?'':'<span class="kk">-</span>')+'<span class="kk">V -</span><b class="rv">'+hl(d.volt,terms)+'</b>';
+    return h+'</div>';
+  }).join("");
+}
+function acts(g){
+  var f=g.lines[0].id;
+  return '<div class="pa"><button onclick="shareImg('+f+')" aria-label="Share as image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button><button onclick="editGroup('+f+')" aria-label="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></button><button class="x" onclick="delGroup('+f+')" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>';
+}
+function card(g,terms,ro){
+  return '<div class="pc"><div class="ph"><div class="ct"><span class="bn">'+hl(g.brand,terms)+'</span>'+hl(g.model,terms)+'</div>'+(ro?'':acts(g))+'</div><div class="ls">'+lineRows(g,terms)+'</div></div>';
+}
+function listHtml(res,terms){
+  if(viewMode==="card") return res.map(function(g){return card(g,terms)}).join("");
+  var order=[],m={};
+  res.forEach(function(g){ var k=g.brand.toLowerCase(); if(!m[k]){ m[k]={name:g.brand,items:[]}; order.push(m[k]); } m[k].items.push(g); });
+  return order.map(function(b){
+    return '<div class="bg"><div class="bh"><b>'+hl(b.name,terms)+'</b><span>'+b.items.length+(b.items.length===1?' model':' models')+'</span></div><div class="bl">'+
+    b.items.map(function(g){ return '<div class="mr"><div class="mm"><div class="mt">'+hl(g.model,terms)+'</div>'+lineRows(g,terms)+'</div>'+acts(g)+'</div>'; }).join("")+'</div></div>';
+  }).join("");
+}
+function setView(m){ viewMode=m; try{ localStorage.setItem("ld_view",m); }catch(e){} render(); }
+function addTo(id){
+  var d=data.find(function(x){return x.id===id}); if(!d) return;
+  openAdd(); $("brand").value=d.brand; $("model").value=d.model;
+  setTimeout(function(){var l=document.querySelector("#rows .ln"); if(l) l.focus();},80);
+}
+
+/* backup */
+function exportData(){
+  if(!data.length&&!forms.length&&!cn.notes.length&&!cn.courses.length){ toast("Backup ke liye data nahi hai"); return; }
+  var b=new Blob([JSON.stringify({data:data,forms:forms,cn:cn},null,2)],{type:"application/json"}), a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download="line-data-backup.json"; document.body.appendChild(a); a.click(); a.remove();
+}
+function importData(e){
+  var f=e.target.files[0]; if(!f) return; var r=new FileReader();
+  r.onload=function(){ try{
+    var obj=JSON.parse(r.result), arr=Array.isArray(obj)?obj:(obj&&obj.data); if(!Array.isArray(arr)) throw 0;
+    if(obj&&Array.isArray(obj.forms)) obj.forms.forEach(function(f){ if(f&&f.short&&f.full&&!forms.some(function(x){return x.short.toLowerCase()===f.short.toLowerCase()})) forms.push({id:Date.now()+forms.length,short:f.short,full:f.full}); });
+    persistForms();
+    if(obj&&obj.cn){
+      (obj.cn.courses||[]).forEach(function(c){ if(c&&c.id&&!cn.courses.some(function(x){return x.id===c.id})) cn.courses.push(c); });
+      (obj.cn.notes||[]).forEach(function(n){ if(n&&n.id&&!cn.notes.some(function(x){return x.id===n.id})){ n.photo=false; cn.notes.push(n); } });
+      persistCN();
+    }
+    var have={}; data.forEach(function(d){have[d.id]=1}); var n=0;
+    arr.forEach(function(d){ if(d&&d.brand&&d.model&&!have[d.id]){ data.push(d); n++; } });
+    persist(); renderHome(); toast(n+" records add hue");
+  }catch(x){ toast("File sahi nahi hai"); } e.target.value=""; };
+  r.readAsText(f);
+}
+
+load(); loadForms(); loadCN(); renderHome();
+try{ history.replaceState({s:"home"},""); }catch(e){}
+window.addEventListener("popstate",function(e){ depth=Math.max(0,depth-1); show((e.state&&e.state.s)||"home",true); });
+if(mpGet()) lkOpen("enter",false);
+cloudInit();
+</script>
+</body>
+</html>
