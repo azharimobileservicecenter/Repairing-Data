@@ -145,6 +145,16 @@ textarea{resize:vertical;line-height:1.5;min-height:140px}
 .kp{display:grid;grid-template-columns:repeat(3,76px);gap:12px;justify-content:center;margin:18px 0 8px}
 .kp button{height:64px;border-radius:18px;border:1.5px solid var(--ink);background:#fff;font-size:24px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--ink)}
 .kp button:active{background:var(--y)}
+.dlgb{position:fixed;top:0;left:0;right:0;bottom:0;z-index:90;background:rgba(15,23,32,.55);display:flex;align-items:center;justify-content:center;padding:20px}
+.dlg{background:#fff;border:1.5px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--y);padding:18px;width:100%;max-width:360px}
+.dlg h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.dlg p{font-size:14.5px;color:var(--muted);line-height:1.45;margin-bottom:14px;word-break:break-word}
+.dlg input{margin-bottom:14px}
+.dlgr{display:flex;gap:10px}
+.dlgr button{flex:1;border-radius:12px;padding:11px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px solid var(--ink)}
+.dlgc{background:#fff;color:var(--ink)}
+.dlgk{background:var(--ink);color:var(--y)}
+.dlgk.dng{background:var(--warn);border-color:var(--warn);color:#fff}
 mark{background:#ffe066;color:inherit;border-radius:3px}
 .empty{text-align:center;color:var(--muted);padding:34px 10px;background:#fff;border:1.5px dashed #9aa5b0;border-radius:14px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--y);font-weight:600;padding:11px 18px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
@@ -322,6 +332,14 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
 </section>
 
 </div>
+<div id="dlg" class="dlgb hide" onclick="if(event.target===this)dlgClose()">
+  <div class="dlg" role="dialog" aria-modal="true">
+    <h3 id="dlgTitle">Confirm</h3>
+    <p id="dlgMsg"></p>
+    <input id="dlgIn" class="hide" autocomplete="off" onkeydown="if(event.key==='Enter')dlgOk()">
+    <div class="dlgr"><button class="dlgc" onclick="dlgClose()">Cancel</button><button id="dlgOk" class="dlgk" onclick="dlgOk()">OK</button></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -443,9 +461,10 @@ function delGroup(id){
   var d=data.find(function(x){return x.id===id}); if(!d) return;
   var k=d.brand.toLowerCase()+"|"+d.model.toLowerCase();
   var n=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===k}).length;
-  if(!confirm("Delete all "+n+" lines of "+d.brand+" "+d.model+"?")) return;
-  data=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()!==k});
-  persist(); fillFilters(); render(); toast("Deleted");
+  ask({title:"Delete model",msg:"Delete all "+n+(n===1?" line":" lines")+" of "+d.brand+" "+d.model+"?",ok:"Delete",danger:true,onOk:function(){
+    data=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()!==k});
+    persist(); fillFilters(); render(); toast("Deleted");
+  }});
 }
 
 /* filters */
@@ -556,6 +575,18 @@ function shareImg(id){
     },"image/png");
   });
 }
+/* ---------- In-app dialog ---------- */
+var dlgCb=null;
+function ask(o){
+  $("dlgTitle").textContent=o.title||"Confirm"; $("dlgMsg").textContent=o.msg||""; $("dlgMsg").classList.toggle("hide",!o.msg);
+  var inp=$("dlgIn"); inp.classList.toggle("hide",!o.input);
+  if(o.input){ inp.value=o.input.value||""; inp.placeholder=o.input.placeholder||""; }
+  $("dlgOk").textContent=o.ok||"OK"; $("dlgOk").className="dlgk"+(o.danger?" dng":"");
+  dlgCb=o.onOk||null; $("dlg").classList.remove("hide");
+  if(o.input) setTimeout(function(){ inp.focus(); if(inp.select) inp.select(); },50);
+}
+function dlgClose(){ $("dlg").classList.add("hide"); dlgCb=null; }
+function dlgOk(){ var cb=dlgCb, v=$("dlgIn").value; dlgClose(); if(cb) cb(v); }
 /* ---------- Course Notes ---------- */
 function loadCN(){
   try{ var o=JSON.parse(localStorage.getItem("course_notes_v1")||"{}"); cn={courses:Array.isArray(o.courses)?o.courses:[],notes:Array.isArray(o.notes)?o.notes:[]}; }catch(e){ cn={courses:[],notes:[]}; }
@@ -582,16 +613,19 @@ function renderCourses(){
   }).join(""):'<div class="empty">No courses yet. Enter a course name above to add one.</div>';
 }
 function renameCourse(id){
-  var c=courseOf(id); if(!c) return; var n=prompt("Course name",c.name);
-  if(n&&n.trim()){ c.name=n.trim(); persistCN(); renderCourses(); }
+  var c=courseOf(id); if(!c) return;
+  ask({title:"Rename course",input:{value:c.name,placeholder:"Course name"},ok:"Save",onOk:function(v){
+    if(v&&v.trim()){ c.name=v.trim(); persistCN(); renderCourses(); }
+  }});
 }
 function delCourse(id){
   var c=courseOf(id); if(!c) return;
   var ns=cn.notes.filter(function(x){return x.course===id});
-  if(!confirm("Delete "+c.name+" and its "+ns.length+" notes?")) return;
-  ns.forEach(function(x){ if(x.photo) photoDel(x.id).catch(function(){}); });
-  cn.notes=cn.notes.filter(function(x){return x.course!==id}); cn.courses=cn.courses.filter(function(x){return x.id!==id});
-  persistCN(); renderCourses(); toast("Deleted");
+  ask({title:"Delete course",msg:"Delete "+c.name+" and its "+ns.length+(ns.length===1?" note?":" notes?"),ok:"Delete",danger:true,onOk:function(){
+    ns.forEach(function(x){ if(x.photo) photoDel(x.id).catch(function(){}); });
+    cn.notes=cn.notes.filter(function(x){return x.course!==id}); cn.courses=cn.courses.filter(function(x){return x.id!==id});
+    persistCN(); renderCourses(); toast("Deleted");
+  }});
 }
 function openCourse(id){ curCourse=id; curCat=""; openNote=null; $("ncQ").value=""; show("cnl"); }
 function renderNotes(){
@@ -626,9 +660,10 @@ function toggleNote(id){ openNote=openNote===id?null:id; renderNotes(); }
 function pickNcCat(i){ curCat=i<0?"":ncCats[i]; renderNotes(); }
 function pinNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(n){ n.pin=!n.pin; persistCN(); renderNotes(); } }
 function delNote(id){
-  if(!confirm("Delete this note?")) return;
-  var n=cn.notes.find(function(x){return x.id===id}); if(n&&n.photo) photoDel(id).catch(function(){});
-  cn.notes=cn.notes.filter(function(x){return x.id!==id}); openNote=null; persistCN(); renderNotes(); toast("Deleted");
+  ask({title:"Delete note",msg:"Delete this note?",ok:"Delete",danger:true,onOk:function(){
+    var n=cn.notes.find(function(x){return x.id===id}); if(n&&n.photo) photoDel(id).catch(function(){});
+    cn.notes=cn.notes.filter(function(x){return x.id!==id}); openNote=null; persistCN(); renderNotes(); toast("Deleted");
+  }});
 }
 function noteText(n){ return n.title+(n.cat?"\n["+n.cat+"]":"")+(n.body?"\n\n"+n.body:""); }
 function copyNote(id){
@@ -877,9 +912,11 @@ function doLogin(){
 function useLocal(){ try{ localStorage.setItem("ld_local_only","1"); }catch(e){} location.reload(); }
 function enableCloud(){ try{ localStorage.removeItem("ld_local_only"); }catch(e){} location.reload(); }
 function doLogout(){
-  if(!FB.auth||!confirm("Log out? Data stays on this phone, but you will need to log in again (and set a new MPIN if you use one).")) return;
-  try{ localStorage.removeItem("ld_mpin"); }catch(e){}
-  FB.auth.signOut();
+  if(!FB.auth) return;
+  ask({title:"Log out",msg:"Data stays on this phone, but you will need to log in again (and set a new MPIN if you use one).",ok:"Log out",onOk:function(){
+    try{ localStorage.removeItem("ld_mpin"); }catch(e){}
+    FB.auth.signOut();
+  }});
 }
 /* ---------- MPIN lock ---------- */
 var lk={mode:"enter",buf:"",first:"",tries:0,until:0}, hiddenAt=0;
@@ -925,13 +962,16 @@ function lkDone(){
 }
 function lkForgot(){
   if(FB.off||!FB.auth){
-    if(!confirm("Reset MPIN and create a new one? Your data stays safe.")) return;
-    try{ localStorage.removeItem("ld_mpin"); }catch(e){}
-    lkOpen("set1",false); return;
+    ask({title:"Reset MPIN",msg:"Reset the MPIN and create a new one? Your data stays safe.",ok:"Reset",onOk:function(){
+      try{ localStorage.removeItem("ld_mpin"); }catch(e){}
+      lkOpen("set1",false);
+    }});
+    return;
   }
-  if(!confirm("To reset the MPIN you will be logged out, then log in again and create a new MPIN. Your data stays safe. Continue?")) return;
-  try{ localStorage.removeItem("ld_mpin"); }catch(e){}
-  lkClose(); FB.auth.signOut();
+  ask({title:"Reset MPIN",msg:"You will be logged out, then log in again and create a new MPIN. Your data stays safe.",ok:"Continue",onOk:function(){
+    try{ localStorage.removeItem("ld_mpin"); }catch(e){}
+    lkClose(); FB.auth.signOut();
+  }});
 }
 if(document.addEventListener) document.addEventListener("visibilitychange",function(){
   if(document.hidden) hiddenAt=Date.now();
@@ -981,8 +1021,9 @@ function editForm(id){
   $("frSave").textContent="Update full form"; $("frCancel").classList.remove("hide"); window.scrollTo(0,0);
 }
 function delForm(id){
-  if(!confirm("Delete this full form?")) return;
-  forms=forms.filter(function(f){return f.id!==id}); persistForms(); renderForms(); toast("Deleted");
+  ask({title:"Delete full form",msg:"Delete this full form?",ok:"Delete",danger:true,onOk:function(){
+    forms=forms.filter(function(f){return f.id!==id}); persistForms(); renderForms(); toast("Deleted");
+  }});
 }
 function setShowFull(){ showFull=$("frSw").checked; try{ localStorage.setItem("ld_showfull",showFull?"1":"0"); }catch(e){} }
 function lineRows(g,terms){
@@ -1043,7 +1084,7 @@ function importData(e){
 
 load(); loadForms(); loadCN(); renderHome();
 try{ history.replaceState({s:"home"},""); }catch(e){}
-window.addEventListener("popstate",function(e){ depth=Math.max(0,depth-1); show((e.state&&e.state.s)||"home",true); });
+window.addEventListener("popstate",function(e){ if(!$("dlg").classList.contains("hide")) dlgClose(); depth=Math.max(0,depth-1); show((e.state&&e.state.s)||"home",true); });
 if(mpGet()) lkOpen("enter",false);
 cloudInit();
 </script>
