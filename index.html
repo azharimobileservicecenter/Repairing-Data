@@ -811,7 +811,7 @@ function startSync(){
   FB.on=true;
   setTimeout(function(){ if(FB.user&&!FB.err&&!CNAMES.every(function(x){return FB.first[x]})){ FB.err="connect nahi ho paaya"; syncStatus(); fsDiag(); } },15000);
   CNAMES.forEach(function(n){
-    FB.unsubs.push(FB.db.collection(n).onSnapshot(function(snap){
+    FB.unsubs.push(FB.db.collection(n).onSnapshot({includeMetadataChanges:true},function(snap){
       var remote=[], st={};
       snap.forEach(function(d){ var o=d.data(); remote.push(o); st[String(o.id)]=keyStr(o); });
       if(!FB.first[n]&&snap.metadata.fromCache&&snap.empty) return;
