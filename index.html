@@ -161,6 +161,7 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
     <div class="lkd" id="lkDots"><i></i><i></i><i></i><i></i></div>
     <div class="lgerr" id="lkErr"></div>
     <div class="kp"><button onclick="lkKey('1')">1</button><button onclick="lkKey('2')">2</button><button onclick="lkKey('3')">3</button><button onclick="lkKey('4')">4</button><button onclick="lkKey('5')">5</button><button onclick="lkKey('6')">6</button><button onclick="lkKey('7')">7</button><button onclick="lkKey('8')">8</button><button onclick="lkKey('9')">9</button><span></span><button onclick="lkKey('0')">0</button><button onclick="lkKey('b')" aria-label="Delete">&#9003;</button></div>
+    <button class="ghost" id="lkSkip" onclick="lkSkip()">Skip, no MPIN</button>
     <button class="ghost" id="lkCancel" onclick="lkClose()">Cancel</button>
     <button class="ghost" id="lkForgot" onclick="lkForgot()">Forgot MPIN?</button>
   </div>
@@ -197,7 +198,7 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
     <button onclick="document.getElementById('imp').click()">Backup restore</button>
     <input type="file" id="imp" accept=".json,application/json" class="hide" onchange="importData(event)">
   </div>
-  <div class="sync"><span id="syncTxt"></span><div style="display:flex;gap:6px;flex-wrap:wrap"><button onclick="changeMpin()">Change MPIN</button><button id="syncBtn" class="hide" onclick="resync()">Sync</button><button id="outBtn" onclick="doLogout()">Logout</button><button id="cloudBtn" class="hide" onclick="enableCloud()">Cloud login</button></div></div>
+  <div class="sync"><span id="syncTxt"></span><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="mpBtn" onclick="changeMpin()">Set MPIN</button><button id="mpOff" class="hide" onclick="removeMpin()">Remove MPIN</button><button id="syncBtn" class="hide" onclick="resync()">Sync</button><button id="outBtn" onclick="doLogout()">Logout</button><button id="cloudBtn" class="hide" onclick="enableCloud()">Cloud login</button></div></div>
 </section>
 
 <!-- ADD -->
@@ -778,6 +779,7 @@ function syncStatus(){
   t.textContent=txt;
   var lo=localStorage.getItem("ld_local_only")==="1"; $("cloudBtn").classList.toggle("hide",!lo); $("outBtn").classList.toggle("hide",!FB.user);
   $("syncBtn").classList.toggle("hide",!FB.user);
+  $("mpBtn").textContent=mpGet()?"Change MPIN":"Set MPIN"; $("mpOff").classList.toggle("hide",!mpGet());
 }
 function fsDiag(){
   if(!FB.user) return;
@@ -875,7 +877,7 @@ function doLogin(){
 function useLocal(){ try{ localStorage.setItem("ld_local_only","1"); }catch(e){} location.reload(); }
 function enableCloud(){ try{ localStorage.removeItem("ld_local_only"); }catch(e){} location.reload(); }
 function doLogout(){
-  if(!FB.auth||!confirm("Log out? Data stays on this phone, but you will need to log in again and create a new MPIN.")) return;
+  if(!FB.auth||!confirm("Log out? Data stays on this phone, but you will need to log in again (and set a new MPIN if you use one).")) return;
   try{ localStorage.removeItem("ld_mpin"); }catch(e){}
   FB.auth.signOut();
 }
@@ -884,18 +886,21 @@ var lk={mode:"enter",buf:"",first:"",tries:0,until:0}, hiddenAt=0;
 function cyrb53(str,seed){ var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed; for(var i=0,ch;i<str.length;i++){ ch=str.charCodeAt(i); h1=Math.imul(h1^ch,2654435761); h2=Math.imul(h2^ch,1597334677); } h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909); h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909); return 4294967296*(2097151&h2)+(h1>>>0); }
 function mpHash(pin,salt){ var h=pin+salt; for(var i=0;i<1500;i++) h=String(cyrb53(h+salt,i)); return h; }
 function mpGet(){ try{ return JSON.parse(localStorage.getItem("ld_mpin")||"null"); }catch(e){ return null; } }
-function mpSave(pin){ var salt=Math.random().toString(36).slice(2)+Date.now().toString(36); try{ localStorage.setItem("ld_mpin",JSON.stringify({s:salt,h:mpHash(pin,salt)})); }catch(e){ toast("Could not save MPIN"); } }
+function mpSave(pin){ var salt=Math.random().toString(36).slice(2)+Date.now().toString(36); try{ localStorage.setItem("ld_mpin",JSON.stringify({s:salt,h:mpHash(pin,salt)})); localStorage.removeItem("ld_mpin_off"); }catch(e){ toast("Could not save MPIN"); } }
 function mpCheck(pin){ var o=mpGet(); return !!o&&mpHash(pin,o.s)===o.h; }
-var LKT={enter:"Enter MPIN",old:"Enter current MPIN",set1:"Create a new 4-digit MPIN",set2:"Re-enter MPIN"};
+var LKT={enter:"Enter MPIN",rm:"Enter MPIN to remove it",old:"Enter current MPIN",set1:"Create a new 4-digit MPIN",set2:"Re-enter MPIN"};
 function lkDraw(){ var d=document.querySelectorAll("#lkDots i"); for(var i=0;i<d.length;i++) d[i].className=i<lk.buf.length?"on":""; }
-function lkOpen(mode,cancelable){
+function lkOpen(mode,cancelable,skippable){
   lk.mode=mode; lk.buf=""; lk.first=""; $("lkErr").textContent=""; $("lkTitle").textContent=LKT[mode]; lkDraw();
-  $("lkCancel").classList.toggle("hide",!cancelable); $("lkForgot").classList.toggle("hide",mode!=="enter");
+  $("lkCancel").classList.toggle("hide",!cancelable); $("lkSkip").classList.toggle("hide",!skippable); $("lkForgot").classList.toggle("hide",mode!=="enter");
   $("lock").classList.remove("hide");
 }
-function lkClose(){ $("lock").classList.add("hide"); lk.buf=""; }
-function ensureMpin(){ if(!mpGet()&&$("lock").classList.contains("hide")) lkOpen("set1",false); }
-function changeMpin(){ lkOpen(mpGet()?"old":"set1",true); }
+function lkClose(){ $("lock").classList.add("hide"); lk.buf=""; syncStatus(); }
+function mpOffFlag(){ try{ return localStorage.getItem("ld_mpin_off")==="1"; }catch(e){ return false; } }
+function ensureMpin(){ if(!mpGet()&&!mpOffFlag()&&$("lock").classList.contains("hide")) lkOpen("set1",false,true); }
+function removeMpin(){ if(mpGet()) lkOpen("rm",true,false); }
+function lkSkip(){ try{ localStorage.setItem("ld_mpin_off","1"); }catch(e){} lkClose(); toast("No MPIN. You can set one later from the home screen."); }
+function changeMpin(){ lkOpen(mpGet()?"old":"set1",true,false); }
 function lkKey(k){
   if(Date.now()<lk.until){ $("lkErr").textContent="Try again shortly"; return; }
   if(k==="b") lk.buf=lk.buf.slice(0,-1); else if(lk.buf.length<4) lk.buf+=k;
@@ -906,8 +911,11 @@ function lkBad(msg){
 }
 function lkDone(){
   var b=lk.buf; lk.buf=""; lkDraw(); $("lkErr").textContent="";
-  if(lk.mode==="enter"||lk.mode==="old"){
-    if(mpCheck(b)){ lk.tries=0; if(lk.mode==="enter") lkClose(); else { lk.mode="set1"; $("lkTitle").textContent=LKT.set1; } }
+  if(lk.mode==="enter"||lk.mode==="old"||lk.mode==="rm"){
+    if(mpCheck(b)){ lk.tries=0;
+      if(lk.mode==="enter") lkClose();
+      else if(lk.mode==="rm"){ try{ localStorage.removeItem("ld_mpin"); localStorage.setItem("ld_mpin_off","1"); }catch(e){} lkClose(); toast("MPIN removed"); }
+      else { lk.mode="set1"; $("lkTitle").textContent=LKT.set1; } }
     else { lk.tries++; if(lk.tries>=5){ lk.tries=0; lk.until=Date.now()+30000; lkBad("Wrong 5 times. Wait 30 seconds"); } else lkBad("Wrong MPIN"); }
   } else if(lk.mode==="set1"){ lk.first=b; lk.mode="set2"; $("lkTitle").textContent=LKT.set2; }
   else if(lk.mode==="set2"){
