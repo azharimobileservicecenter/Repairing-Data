@@ -9,7 +9,7 @@
 <style>
 :root{--bg:#eef0f2;--ink:#0f1720;--muted:#66727f;--line:#dde2e7;--y:#ffc400;--y-soft:#fff6d1;--warn:#d6403a;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{height:100%}
+html{height:100%;max-width:100%;overflow-x:hidden}
 body{font-family:"Chakra Petch",system-ui,-apple-system,Roboto,sans-serif;background-color:var(--bg);background-image:linear-gradient(rgba(15,23,32,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,32,.05) 1px,transparent 1px);background-size:20px 20px;color:var(--ink);min-height:100%;font-size:15px;line-height:1.4}
 .app{background:var(--y);display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 14px;border-bottom:2.5px solid var(--ink)}
 .lg{width:40px;height:40px;border-radius:11px;background:var(--ink);display:grid;place-items:center;flex:none}
@@ -132,7 +132,9 @@ textarea{resize:vertical;line-height:1.5;min-height:140px}
 .dmsg{background:var(--y-soft);border:1px solid #f0d36a;color:#5c4700;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:6px}
 .lgo{position:fixed;top:0;left:0;right:0;bottom:0;z-index:60;background-color:var(--bg);background-image:linear-gradient(rgba(15,23,32,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,32,.05) 1px,transparent 1px);background-size:20px 20px;overflow:auto}
 .lgerr{color:var(--warn);font-size:13px;margin:0 0 10px;min-height:18px}
-.sync{white-space:pre-line;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:16px;font-size:12.5px;color:var(--muted)}
+.sync{flex-wrap:wrap;white-space:pre-line;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:16px;font-size:12.5px;color:var(--muted)}
+.sync>span{flex:1 1 100%;min-width:0;word-break:break-word}
+.sync>div{flex-wrap:wrap}
 .sync button{flex:none;border:1.5px solid var(--ink);background:#fff;border-radius:10px;padding:5px 12px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--ink)}
 .lk{z-index:70}
 .lkw{text-align:center;padding-top:26px}
@@ -155,24 +157,24 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
 <div id="lock" class="lgo lk hide">
   <header class="app"><div class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-6 4 12 2.5-6H22"/></svg></div><div><b>Line Data</b><span>Azhari Mobile Service Center</span></div></header>
   <div class="wrap lkw">
-    <div class="lkt" id="lkTitle">MPIN daalo</div>
+    <div class="lkt" id="lkTitle">Enter MPIN</div>
     <div class="lkd" id="lkDots"><i></i><i></i><i></i><i></i></div>
     <div class="lgerr" id="lkErr"></div>
     <div class="kp"><button onclick="lkKey('1')">1</button><button onclick="lkKey('2')">2</button><button onclick="lkKey('3')">3</button><button onclick="lkKey('4')">4</button><button onclick="lkKey('5')">5</button><button onclick="lkKey('6')">6</button><button onclick="lkKey('7')">7</button><button onclick="lkKey('8')">8</button><button onclick="lkKey('9')">9</button><span></span><button onclick="lkKey('0')">0</button><button onclick="lkKey('b')" aria-label="Delete">&#9003;</button></div>
     <button class="ghost" id="lkCancel" onclick="lkClose()">Cancel</button>
-    <button class="ghost" id="lkForgot" onclick="lkForgot()">MPIN bhool gaye?</button>
+    <button class="ghost" id="lkForgot" onclick="lkForgot()">Forgot MPIN?</button>
   </div>
 </div>
 <div id="login" class="lgo">
   <header class="app"><div class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-6 4 12 2.5-6H22"/></svg></div><div><b>Line Data</b><span>Azhari Mobile Service Center</span></div></header>
   <div class="wrap">
-    <div id="lgWait" class="empty" style="margin-top:20px">Check ho raha hai...</div>
+    <div id="lgWait" class="empty" style="margin-top:20px">Checking...</div>
     <div class="form hide" id="lgForm" style="margin-top:20px">
       <div class="f"><label for="lgEmail">Email</label><input id="lgEmail" type="email" inputmode="email" autocomplete="username"></div>
       <div class="f"><label for="lgPass">Password</label><input id="lgPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="lgerr" id="lgErr"></div>
       <button class="save" id="lgBtn" onclick="doLogin()">Login</button>
-      <button class="ghost" onclick="useLocal()">Bina login ke chalao (sirf is phone me)</button>
+      <button class="ghost" onclick="useLocal()">Continue without login (this phone only)</button>
     </div>
   </div>
 </div>
@@ -181,7 +183,7 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
 
 <!-- HOME -->
 <section id="home">
-  <div class="search hs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="hq" enterkeyhint="search" placeholder="Model search karo, jaise Y20" onkeydown="if(event.key==='Enter')goSearch()" autocomplete="off"></div>
+  <div class="search hs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="hq" enterkeyhint="search" placeholder="Search model" onkeydown="if(event.key==='Enter')goSearch()" autocomplete="off"></div>
   <div class="actions">
     <button class="big p" onclick="openAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add Data</button>
     <button class="big s" onclick="show('view')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/></svg>View Data</button>
@@ -195,7 +197,7 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
     <button onclick="document.getElementById('imp').click()">Backup restore</button>
     <input type="file" id="imp" accept=".json,application/json" class="hide" onchange="importData(event)">
   </div>
-  <div class="sync"><span id="syncTxt"></span><div style="display:flex;gap:6px;flex:none"><button onclick="changeMpin()">MPIN badlo</button><button id="syncBtn" class="hide" onclick="resync()">Sync</button><button id="outBtn" onclick="doLogout()">Logout</button><button id="cloudBtn" class="hide" onclick="enableCloud()">Cloud login</button></div></div>
+  <div class="sync"><span id="syncTxt"></span><div style="display:flex;gap:6px;flex-wrap:wrap"><button onclick="changeMpin()">Change MPIN</button><button id="syncBtn" class="hide" onclick="resync()">Sync</button><button id="outBtn" onclick="doLogout()">Logout</button><button id="cloudBtn" class="hide" onclick="enableCloud()">Cloud login</button></div></div>
 </section>
 
 <!-- ADD -->
@@ -203,8 +205,8 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
   <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2 id="addTitle">Add Data</h2></div>
   <div class="form">
     <div class="r2">
-      <div class="f"><label for="brand">Brand</label><input id="brand" list="brandList" placeholder="Vivo" oninput="onBM()" autocomplete="off"></div>
-      <div class="f"><label for="model">Model</label><input id="model" list="modelList" placeholder="Y20" oninput="onBM()" autocomplete="off"></div>
+      <div class="f"><label for="brand">Brand</label><input id="brand" list="brandList" oninput="onBM()" autocomplete="off"></div>
+      <div class="f"><label for="model">Model</label><input id="model" list="modelList" oninput="onBM()" autocomplete="off"></div>
     </div>
     <div class="exist hide" id="exist"></div>
     <datalist id="brandList"></datalist><datalist id="modelList"></datalist><datalist id="lineList"></datalist>
@@ -245,16 +247,16 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
   <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Full Forms</h2></div>
   <div class="form">
     <div class="r2">
-      <div class="f"><label for="frShort">Line name</label><input id="frShort" placeholder="DM" autocomplete="off"></div>
-      <div class="f"><label for="frFull">Full form</label><input id="frFull" placeholder="Full form likho" autocomplete="off"></div>
+      <div class="f"><label for="frShort">Line name</label><input id="frShort" autocomplete="off"></div>
+      <div class="f"><label for="frFull">Full form</label><input id="frFull" autocomplete="off"></div>
     </div>
-    <div class="hint hide" id="frHint">Ye lines ka full form abhi nahi hai, dabao</div>
+    <div class="hint hide" id="frHint">Lines without a full form (tap to add)</div>
     <div class="chips" id="frChips"></div>
     <button class="save" id="frSave" onclick="saveForm()">Save full form</button>
     <button class="ghost hide" id="frCancel" onclick="resetForm()">Cancel edit</button>
   </div>
-  <label class="sw"><span>Cards me full form dikhao</span><input type="checkbox" id="frSw" onchange="setShowFull()"></label>
-  <div class="search" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="frQ" placeholder="Search line name ya full form" oninput="renderForms()" autocomplete="off"></div>
+  <label class="sw"><span>Show full forms on cards</span><input type="checkbox" id="frSw" onchange="setShowFull()"></label>
+  <div class="search" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="frQ" placeholder="Search line name or full form" oninput="renderForms()" autocomplete="off"></div>
   <div class="count"><span id="frCnt"></span><span></span></div>
   <div class="bl" id="frList"></div>
 </section>
@@ -263,8 +265,8 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
 <section id="cn" class="hide">
   <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Course Notes</h2></div>
   <div class="form">
-    <div class="f"><label for="cnName">Naya course</label><input id="cnName" placeholder="Course ka naam" autocomplete="off"></div>
-    <button class="save" onclick="addCourse()">Course jodo</button>
+    <div class="f"><label for="cnName">New course</label><input id="cnName" autocomplete="off"></div>
+    <button class="save" onclick="addCourse()">Add course</button>
   </div>
   <div class="count" style="margin-top:16px"><span id="cnCnt"></span><span></span></div>
   <div class="cards" id="cnList"></div>
@@ -283,13 +285,13 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
   <div class="form">
     <div class="r2">
       <div class="f"><label for="neCourse">Course</label><select id="neCourse" onchange="fillCats()"></select></div>
-      <div class="f"><label for="neCat">Category</label><input id="neCat" list="catList" placeholder="Chapter / topic" autocomplete="off"></div>
+      <div class="f"><label for="neCat">Category</label><input id="neCat" list="catList" autocomplete="off"></div>
     </div>
     <datalist id="catList"></datalist>
-    <div class="f"><label for="neTitle">Title</label><input id="neTitle" placeholder="Note ka title" autocomplete="off"></div>
-    <div class="f"><label for="neBody">Notes</label><textarea id="neBody" rows="9" placeholder="Yaha likho..."></textarea></div>
+    <div class="f"><label for="neTitle">Title</label><input id="neTitle" autocomplete="off"></div>
+    <div class="f"><label for="neBody">Notes</label><textarea id="neBody" rows="9"></textarea></div>
     <div class="f"><label>Notebook photo</label><div id="nePhoto"></div>
-      <button class="addrow" onclick="document.getElementById('neFile').click()">+ Photo jodo</button>
+      <button class="addrow" onclick="document.getElementById('neFile').click()">+ Add photo</button>
       <input type="file" id="neFile" accept="image/*" class="hide" onchange="pickPhoto(event)"></div>
     <button class="save" onclick="saveNote()">Save note</button>
     <button class="ghost" onclick="goBack()">Cancel</button>
@@ -306,13 +308,13 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
       <path d="M60 70v10M60 80h92"/><circle cx="60" cy="80" r="4" fill="#ffc400"/><circle cx="152" cy="80" r="3.5" fill="currentColor"/><text x="160" y="85" font-size="14" font-weight="700" fill="currentColor" stroke="none">Vout</text>
       <path d="M60 80v10"/><rect x="50" y="90" width="20" height="40" rx="3"/><text x="82" y="114" font-size="14" font-weight="700" fill="currentColor" stroke="none">R2</text>
       <path d="M60 130v14M46 144h28M51 150h18M56 156h8"/></svg>
-    <div class="hint">Teen cheezein bharo, jo nikalna hai wo khali chhodo.</div>
+    <div class="hint">Fill any three values and leave the one you want to find empty.</div>
     <div class="r2">
-      <div class="f"><label for="dvVin">Vin (V)</label><input id="dvVin" inputmode="decimal" placeholder="3.3" oninput="dvCalc()" autocomplete="off"></div>
-      <div class="f"><label for="dvVout">Vout (V)</label><input id="dvVout" inputmode="decimal" placeholder="1.8" oninput="dvCalc()" autocomplete="off"></div>
+      <div class="f"><label for="dvVin">Vin (V)</label><input id="dvVin" inputmode="decimal" oninput="dvCalc()" autocomplete="off"></div>
+      <div class="f"><label for="dvVout">Vout (V)</label><input id="dvVout" inputmode="decimal" oninput="dvCalc()" autocomplete="off"></div>
     </div>
-    <div class="f"><label for="dvR1">R1 (upar wala)</label><div class="rg"><input id="dvR1" inputmode="decimal" placeholder="10" oninput="dvCalc()" autocomplete="off"><select id="dvU1" onchange="dvCalc()"><option value="1">&Omega;</option><option value="1000" selected>k&Omega;</option><option value="1000000">M&Omega;</option></select></div></div>
-    <div class="f"><label for="dvR2">R2 (neeche wala)</label><div class="rg"><input id="dvR2" inputmode="decimal" placeholder="10" oninput="dvCalc()" autocomplete="off"><select id="dvU2" onchange="dvCalc()"><option value="1">&Omega;</option><option value="1000" selected>k&Omega;</option><option value="1000000">M&Omega;</option></select></div></div>
+    <div class="f"><label for="dvR1">R1 (top)</label><div class="rg"><input id="dvR1" inputmode="decimal" oninput="dvCalc()" autocomplete="off"><select id="dvU1" onchange="dvCalc()"><option value="1">&Omega;</option><option value="1000" selected>k&Omega;</option><option value="1000000">M&Omega;</option></select></div></div>
+    <div class="f"><label for="dvR2">R2 (bottom)</label><div class="rg"><input id="dvR2" inputmode="decimal" oninput="dvCalc()" autocomplete="off"><select id="dvU2" onchange="dvCalc()"><option value="1">&Omega;</option><option value="1000" selected>k&Omega;</option><option value="1000000">M&Omega;</option></select></div></div>
     <div id="dvRes"></div>
     <button class="ghost" onclick="dvClear()">Clear</button>
   </div>
@@ -329,7 +331,7 @@ var cn={courses:[],notes:[]}, curCourse=null, curCat="", ncCats=[], openNote=nul
 
 try{ viewMode=localStorage.getItem("ld_view")||"list"; }catch(e){}
 function load(){ try{ data=JSON.parse(localStorage.getItem(KEY)||"[]"); if(!Array.isArray(data)) data=[]; }catch(e){ data=[]; } }
-function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(data)); }catch(e){ toast("Save nahi ho paya, storage full ya blocked"); } cloudPush("lines"); }
+function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(data)); }catch(e){ toast("Could not save. Storage is full or blocked."); } cloudPush("lines"); }
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("on")},2200)}
@@ -352,7 +354,7 @@ function show(id,fromPop){
 function renderHome(){
   syncStatus();
   var r=groups(data).sort(function(a,b){return b.last-a.last}).slice(0,3);
-  $("recent").innerHTML=r.length?r.map(function(g){return card(g,[],true)}).join(""):'<div class="empty">Abhi koi data nahi hai. Add Data se pehla record daalo.</div>';
+  $("recent").innerHTML=r.length?r.map(function(g){return card(g,[],true)}).join(""):'<div class="empty">No data yet. Use Add Data to create your first record.</div>';
 }
 
 function addRow(name,gr,volt,id){
@@ -362,7 +364,7 @@ function addRow(name,gr,volt,id){
     if(!li.value.trim() && !last.querySelector(".g").value.trim() && !last.querySelector(".vv").value.trim()){ li.value=name; last.querySelector(".g").focus(); return; }
   }
   var d=document.createElement("div"); d.className="lr";
-  d.innerHTML='<input class="ln" list="lineList" placeholder="DM" autocomplete="off"><input class="g" placeholder="0.512" autocomplete="off"><input class="vv" placeholder="1.8V" autocomplete="off"><button class="x" aria-label="Remove line" onclick="rmRow(this)">&times;</button>';
+  d.innerHTML='<input class="ln" list="lineList" autocomplete="off"><input class="g" autocomplete="off"><input class="vv" autocomplete="off"><button class="x" aria-label="Remove line" onclick="rmRow(this)">&times;</button>';
   box.appendChild(d); if(id) d.dataset.id=id;
   d.querySelector(".ln").value=name||""; d.querySelector(".g").value=gr||""; d.querySelector(".vv").value=volt||"";
   if(id){} else if(name) d.querySelector(".g").focus(); else if(box.children.length>1) d.querySelector(".ln").focus();
@@ -394,14 +396,14 @@ function onBM(){
   var b=$("brand").value.trim().toLowerCase(), m=$("model").value.trim().toLowerCase(), box=$("exist");
   var n=(b&&m)?data.filter(function(d){return d.brand.toLowerCase()===b&&d.model.toLowerCase()===m}).length:0;
   box.classList.toggle("hide",!n);
-  if(n) box.textContent="Ye model pehle se saved hai ("+n+(n===1?" line":" lines")+"). Nayi lines usi card me judengi, same line name ho to update hogi.";
+  if(n) box.textContent="This model already exists ("+n+(n===1?" line":" lines")+"). New lines will be added to the same card; a line with the same name will be updated.";
 }
 function goSearch(){
   var v=$("hq").value; $("hq").value=""; show("view"); $("q").value=v; render();
 }
 function saveItem(){
   var brand=$("brand").value.trim(), model=$("model").value.trim();
-  if(!brand||!model){ toast("Brand aur Model zaroori hai"); return; }
+  if(!brand||!model){ toast("Brand and Model are required"); return; }
   var items=[], bad=false;
   document.querySelectorAll("#rows .lr").forEach(function(r){
     var l=r.querySelector(".ln").value.trim(), g=r.querySelector(".g").value.trim(), v=r.querySelector(".vv").value.trim();
@@ -409,13 +411,13 @@ function saveItem(){
     if(!l){ bad=true; return; }
     items.push({brand:brand,model:model,line:l,gr:g,volt:v,_rid:r.dataset.id||""});
   });
-  if(bad){ toast("Har row me Line name likho"); return; }
-  if(!items.length){ toast("Kam se kam ek line ka data daalo"); return; }
+  if(bad){ toast("Enter a line name in every row"); return; }
+  if(!items.length){ toast("Enter at least one line"); return; }
   if(editIds){
     var t0=Date.now();
     data=data.filter(function(d){return editIds.indexOf(d.id)<0});
     items.forEach(function(o,k){ o.id=o._rid?Number(o._rid):t0+k; delete o._rid; data.push(o); });
-    persist(); editIds=null; toast("Update ho gaya"); goBack(); return;
+    persist(); editIds=null; toast("Updated"); goBack(); return;
   }
   var t=Date.now(), upd=0, add=0, key=brand.toLowerCase()+"|"+model.toLowerCase();
   items.forEach(function(o,k){
@@ -423,7 +425,7 @@ function saveItem(){
     if(ex){ ex.gr=o.gr; ex.volt=o.volt; upd++; }
     else { o.id=t+k; delete o._rid; data.push(o); add++; }
   });
-  persist(); toast((add?add+" line save hui":"")+(add&&upd?", ":"")+(upd?upd+" update hui":""));
+  persist(); toast((add?add+" saved":"")+(add&&upd?", ":"")+(upd?upd+" updated":""));
   $("brand").value=""; $("model").value=""; $("rows").innerHTML=""; addRow(); onBM(); $("brand").focus();
 }
 function editGroup(id){
@@ -440,9 +442,9 @@ function delGroup(id){
   var d=data.find(function(x){return x.id===id}); if(!d) return;
   var k=d.brand.toLowerCase()+"|"+d.model.toLowerCase();
   var n=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===k}).length;
-  if(!confirm(d.brand+" "+d.model+" ki saari "+n+" lines delete karni hain?")) return;
+  if(!confirm("Delete all "+n+" lines of "+d.brand+" "+d.model+"?")) return;
   data=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()!==k});
-  persist(); fillFilters(); render(); toast("Delete ho gaya");
+  persist(); fillFilters(); render(); toast("Deleted");
 }
 
 /* filters */
@@ -498,7 +500,7 @@ function render(){
   var n=0; res.forEach(function(g){n+=g.lines.length});
   $("vL").classList.toggle("on",viewMode==="list"); $("vC").classList.toggle("on",viewMode!=="list");
   $("cnt").textContent=res.length+(res.length===1?" model, ":" models, ")+n+(n===1?" line":" lines");
-  $("list").innerHTML=res.length?listHtml(res,terms):'<div class="empty">'+(data.length?"Koi record match nahi hua. Filters ya search badal ke dekho.":"Abhi koi data nahi hai.")+'</div>';
+  $("list").innerHTML=res.length?listHtml(res,terms):'<div class="empty">'+(data.length?"No records match. Try changing the search or filters.":"No data yet.")+'</div>';
 }
 function hl(text,terms){
   var t=esc(text||"-"); if(!terms||!terms.length||!text) return t;
@@ -511,7 +513,7 @@ function shareImg(id){
   var d0=data.find(function(x){return x.id===id}); if(!d0) return;
   var key=d0.brand.toLowerCase()+"|"+d0.model.toLowerCase();
   var ls=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===key}).sort(function(a,b){return a.id-b.id});
-  toast("Image ban rahi hai...");
+  toast("Creating image...");
   var ready=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('700 30px "Chakra Petch"'),document.fonts.load('500 24px "Chakra Petch"'),document.fonts.load('700 28px "JetBrains Mono"')]).catch(function(){}):Promise.resolve();
   ready.then(function(){
     var W=900,pad=48,rowH=68,top=300,H=top+ls.length*rowH+110;
@@ -545,11 +547,11 @@ function shareImg(id){
     c.fillStyle="#66727f"; c.font='500 24px '+SANS; c.fillText(ls.length+(ls.length===1?" line":" lines"),pad,H-40);
     var dt=new Date().toLocaleDateString("en-GB"); c.textAlign="right"; c.fillText(dt,W-pad,H-40); c.textAlign="left";
     cv.toBlob(function(b){
-      if(!b){ toast("Image nahi ban paayi"); return; }
+      if(!b){ toast("Could not create image"); return; }
       var name=(d0.brand+"-"+d0.model).replace(/[^\w\-]+/g,"_")+".png", f;
       try{ f=new File([b],name,{type:"image/png"}); }catch(e){ f=null; }
       if(f&&navigator.canShare&&navigator.canShare({files:[f]})){ navigator.share({files:[f],title:d0.brand+" "+d0.model}).catch(function(){}); return; }
-      var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image download ho gayi");
+      var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image downloaded");
     },"image/png");
   });
 }
@@ -557,7 +559,7 @@ function shareImg(id){
 function loadCN(){
   try{ var o=JSON.parse(localStorage.getItem("course_notes_v1")||"{}"); cn={courses:Array.isArray(o.courses)?o.courses:[],notes:Array.isArray(o.notes)?o.notes:[]}; }catch(e){ cn={courses:[],notes:[]}; }
 }
-function persistCN(){ try{ localStorage.setItem("course_notes_v1",JSON.stringify(cn)); }catch(e){ toast("Save nahi ho paya, storage full ho sakta hai"); } cloudPush("courses"); cloudPush("notes"); }
+function persistCN(){ try{ localStorage.setItem("course_notes_v1",JSON.stringify(cn)); }catch(e){ toast("Could not save. Storage may be full."); } cloudPush("courses"); cloudPush("notes"); }
 function courseOf(id){ return cn.courses.find(function(c){return c.id===id}); }
 function idb(){ return new Promise(function(res,rej){ if(!window.indexedDB){ rej(); return; } var r=indexedDB.open("line_data_db",1); r.onupgradeneeded=function(){ r.result.createObjectStore("photos"); }; r.onsuccess=function(){res(r.result)}; r.onerror=function(){rej(r.error)}; }); }
 function photoPut(id,d){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").put(d,id); t.oncomplete=res; t.onerror=rej; }); }); }
@@ -565,9 +567,9 @@ function photoGet(id){ return idb().then(function(db){ return new Promise(functi
 function photoDel(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").delete(id); t.oncomplete=res; t.onerror=rej; }); }); }
 
 function addCourse(){
-  var n=$("cnName").value.trim(); if(!n){ toast("Course ka naam likho"); return; }
-  if(cn.courses.some(function(c){return c.name.toLowerCase()===n.toLowerCase()})){ toast("Ye course pehle se hai"); return; }
-  cn.courses.push({id:Date.now(),name:n}); persistCN(); $("cnName").value=""; renderCourses(); toast("Course ban gaya");
+  var n=$("cnName").value.trim(); if(!n){ toast("Enter a course name"); return; }
+  if(cn.courses.some(function(c){return c.name.toLowerCase()===n.toLowerCase()})){ toast("This course already exists"); return; }
+  cn.courses.push({id:Date.now(),name:n}); persistCN(); $("cnName").value=""; renderCourses(); toast("Course created");
 }
 function renderCourses(){
   $("cnCnt").textContent=cn.courses.length+(cn.courses.length===1?" course":" courses");
@@ -576,19 +578,19 @@ function renderCourses(){
   $("cnList").innerHTML=cn.courses.length?cn.courses.slice().reverse().map(function(c){
     var n=cn.notes.filter(function(x){return x.course===c.id}).length;
     return '<div class="cc" onclick="openCourse('+c.id+')"><div class="cb"><b>'+esc(c.name)+'</b><span class="s">'+n+(n===1?' note':' notes')+'</span></div><div class="pa" onclick="event.stopPropagation()"><button onclick="renameCourse('+c.id+')" aria-label="Rename">'+ed+'</button><button class="x" onclick="delCourse('+c.id+')" aria-label="Delete">'+de+'</button></div></div>';
-  }).join(""):'<div class="empty">Abhi koi course nahi hai. Upar course ka naam likh ke jodo.</div>';
+  }).join(""):'<div class="empty">No courses yet. Enter a course name above to add one.</div>';
 }
 function renameCourse(id){
-  var c=courseOf(id); if(!c) return; var n=prompt("Course ka naam",c.name);
+  var c=courseOf(id); if(!c) return; var n=prompt("Course name",c.name);
   if(n&&n.trim()){ c.name=n.trim(); persistCN(); renderCourses(); }
 }
 function delCourse(id){
   var c=courseOf(id); if(!c) return;
   var ns=cn.notes.filter(function(x){return x.course===id});
-  if(!confirm(c.name+" aur uske "+ns.length+" notes delete karne hain?")) return;
+  if(!confirm("Delete "+c.name+" and its "+ns.length+" notes?")) return;
   ns.forEach(function(x){ if(x.photo) photoDel(x.id).catch(function(){}); });
   cn.notes=cn.notes.filter(function(x){return x.course!==id}); cn.courses=cn.courses.filter(function(x){return x.id!==id});
-  persistCN(); renderCourses(); toast("Delete ho gaya");
+  persistCN(); renderCourses(); toast("Deleted");
 }
 function openCourse(id){ curCourse=id; curCat=""; openNote=null; $("ncQ").value=""; show("cnl"); }
 function renderNotes(){
@@ -605,7 +607,7 @@ function renderNotes(){
     var h=(n.title+" "+n.cat+" "+n.body).toLowerCase(); return terms.every(function(t){return h.indexOf(t)>-1});
   }).sort(function(a,b){ return (b.pin?1:0)-(a.pin?1:0)||b.ts-a.ts; });
   $("ncCnt").textContent=terms.length||curCat?list.length+" of "+all.length+" notes":all.length+(all.length===1?" note":" notes");
-  $("ncList").innerHTML=list.length?list.map(function(n){ return noteCard(n,terms); }).join(""):'<div class="empty">'+(all.length?"Koi note match nahi hua.":"Abhi koi note nahi hai. + New note dabao.")+'</div>';
+  $("ncList").innerHTML=list.length?list.map(function(n){ return noteCard(n,terms); }).join(""):'<div class="empty">'+(all.length?"No notes match.":"No notes yet. Tap + New note.")+'</div>';
   if(openNote){ var n=cn.notes.find(function(x){return x.id===openNote}); if(n&&n.photo){ photoGet(n.id).then(function(d){ var el=document.getElementById("np"+n.id); if(el&&d) el.src=d; }).catch(function(){}); } }
 }
 function noteCard(n,terms){
@@ -623,15 +625,15 @@ function toggleNote(id){ openNote=openNote===id?null:id; renderNotes(); }
 function pickNcCat(i){ curCat=i<0?"":ncCats[i]; renderNotes(); }
 function pinNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(n){ n.pin=!n.pin; persistCN(); renderNotes(); } }
 function delNote(id){
-  if(!confirm("Ye note delete karna hai?")) return;
+  if(!confirm("Delete this note?")) return;
   var n=cn.notes.find(function(x){return x.id===id}); if(n&&n.photo) photoDel(id).catch(function(){});
-  cn.notes=cn.notes.filter(function(x){return x.id!==id}); openNote=null; persistCN(); renderNotes(); toast("Delete ho gaya");
+  cn.notes=cn.notes.filter(function(x){return x.id!==id}); openNote=null; persistCN(); renderNotes(); toast("Deleted");
 }
 function noteText(n){ return n.title+(n.cat?"\n["+n.cat+"]":"")+(n.body?"\n\n"+n.body:""); }
 function copyNote(id){
   var n=cn.notes.find(function(x){return x.id===id}); if(!n) return; var t=noteText(n);
-  function fb(){ var a=document.createElement("textarea"); a.value=t; document.body.appendChild(a); a.select(); try{ document.execCommand("copy"); toast("Copy ho gaya"); }catch(e){ toast("Copy nahi hua"); } a.remove(); }
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast("Copy ho gaya"); },fb); else fb();
+  function fb(){ var a=document.createElement("textarea"); a.value=t; document.body.appendChild(a); a.select(); try{ document.execCommand("copy"); toast("Copied"); }catch(e){ toast("Could not copy"); } a.remove(); }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast("Copied"); },fb); else fb();
 }
 function shareNoteText(id){
   var n=cn.notes.find(function(x){return x.id===id}); if(!n) return;
@@ -652,28 +654,28 @@ function fillNoteForm(n){
 }
 function newNote(){ editNoteId=null; fillNoteForm(null); show("cne"); }
 function editNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(!n) return; editNoteId=id; fillNoteForm(n); show("cne"); }
-function drawPhotoPrev(){ $("nePhoto").innerHTML=nePhoto?'<img class="np" style="margin:0 0 8px" src="'+nePhoto+'" alt="Photo"><button class="ghost" style="margin:0 0 6px" onclick="removePhoto()">Photo hatao</button>':""; }
+function drawPhotoPrev(){ $("nePhoto").innerHTML=nePhoto?'<img class="np" style="margin:0 0 8px" src="'+nePhoto+'" alt="Photo"><button class="ghost" style="margin:0 0 6px" onclick="removePhoto()">Remove photo</button>':""; }
 function removePhoto(){ nePhoto=null; neMode="none"; drawPhotoPrev(); }
 function pickPhoto(e){
   var f=e.target.files[0]; if(!f) return; var r=new FileReader();
   r.onload=function(){ var im=new Image(); im.onload=function(){
     var m=1280, k=Math.min(1,m/Math.max(im.width,im.height)), cv=document.createElement("canvas"); cv.width=Math.round(im.width*k); cv.height=Math.round(im.height*k);
     cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height); nePhoto=cv.toDataURL("image/jpeg",0.72); neMode="new"; drawPhotoPrev();
-  }; im.onerror=function(){ toast("Photo khul nahi paayi"); }; im.src=r.result; };
+  }; im.onerror=function(){ toast("Could not open photo"); }; im.src=r.result; };
   r.readAsDataURL(f); e.target.value="";
 }
 function saveNote(){
   var course=Number($("neCourse").value), title=$("neTitle").value.trim(), body=$("neBody").value.trim(), cat=$("neCat").value.trim();
-  if(!course){ toast("Pehle course banao"); return; }
-  if(!title){ toast("Title likho"); return; }
+  if(!course){ toast("Create a course first"); return; }
+  if(!title){ toast("Enter a title"); return; }
   var n=editNoteId?cn.notes.find(function(x){return x.id===editNoteId}):null, had=n?n.photo:false;
   if(n){ n.course=course; n.cat=cat; n.title=title; n.body=body; }
   else { n={id:Date.now(),course:course,cat:cat,title:title,body:body,pin:false,ts:Date.now(),photo:false}; cn.notes.push(n); }
   var job=Promise.resolve();
   if(neMode==="new"){ n.photo=true; job=photoPut(n.id,nePhoto); }
   else if(neMode==="none"&&had){ n.photo=false; job=photoDel(n.id); }
-  job.catch(function(){ n.photo=had&&neMode!=="none"; toast("Photo save nahi hui"); }).then(function(){
-    persistCN(); curCourse=course; openNote=n.id; editNoteId=null; toast("Note save ho gaya"); goBack();
+  job.catch(function(){ n.photo=had&&neMode!=="none"; toast("Could not save photo"); }).then(function(){
+    persistCN(); curCourse=course; openNote=n.id; editNoteId=null; toast("Note saved"); goBack();
   });
 }
 function wrapT(c,text,maxW){
@@ -684,7 +686,7 @@ function wrapT(c,text,maxW){
 }
 function shareNoteImg(id){
   var n=cn.notes.find(function(x){return x.id===id}); if(!n) return; var co=courseOf(n.course);
-  toast("Image ban rahi hai...");
+  toast("Creating image...");
   var ready=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('700 30px "Chakra Petch"'),document.fonts.load('400 30px "Chakra Petch"')]).catch(function(){}):Promise.resolve();
   ready.then(function(){
     var W=900,pad=48,SANS='"Chakra Petch",system-ui,sans-serif';
@@ -705,10 +707,10 @@ function shareNoteImg(id){
     c.fillStyle="#dde2e7"; c.fillRect(pad,H-84,W-pad*2,2); c.fillStyle="#66727f"; c.font='500 24px '+SANS;
     c.fillText("Course Notes",pad,H-40); c.textAlign="right"; c.fillText(new Date(n.ts).toLocaleDateString("en-GB"),W-pad,H-40); c.textAlign="left";
     cv.toBlob(function(b){
-      if(!b){ toast("Image nahi ban paayi"); return; }
+      if(!b){ toast("Could not create image"); return; }
       var name=n.title.replace(/[^\w\-]+/g,"_").slice(0,40)+".png", f; try{ f=new File([b],name,{type:"image/png"}); }catch(e){ f=null; }
       if(f&&navigator.canShare&&navigator.canShare({files:[f]})){ navigator.share({files:[f],title:n.title}).catch(function(){}); return; }
-      var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image download ho gayi");
+      var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image downloaded");
     },"image/png");
   });
 }
@@ -727,14 +729,14 @@ function dvCalc(){
   if(r2!==null&&!isNaN(r2)) r2*=Number($("dvU2").value);
   var vals=[vin,vout,r1,r2], blanks=vals.filter(function(v){return v===null}).length;
   if(blanks===4){ box.innerHTML=""; return; }
-  if(vals.some(function(v){return v!==null&&(isNaN(v)||v<=0)})){ msg("Sirf sahi positive number likho."); return; }
-  if(blanks>1){ msg("Teen cheezein bharo, jo nikalna hai wo khali chhodo."); return; }
-  if(blanks===0){ msg("Ek cheez khali chhodo, wahi nikal jayegi."); return; }
+  if(vals.some(function(v){return v!==null&&(isNaN(v)||v<=0)})){ msg("Enter valid positive numbers only."); return; }
+  if(blanks>1){ msg("Fill any three values and leave the one you want to find empty."); return; }
+  if(blanks===0){ msg("Leave one value empty to calculate it."); return; }
   var what, res;
   if(vout===null){ vout=vin*r2/(r1+r2); what="Vout"; res=dvV(vout); }
   else if(vin===null){ vin=vout*(r1+r2)/r2; what="Vin"; res=dvV(vin); }
   else {
-    if(vout>=vin){ msg("Vout, Vin se chhota hona chahiye."); return; }
+    if(vout>=vin){ msg("Vout must be less than Vin."); return; }
     if(r1===null){ r1=r2*(vin-vout)/vout; what="R1"; res=dvR(r1); }
     else { r2=r1*vout/(vin-vout); what="R2"; res=dvR(r2); }
   }
@@ -764,13 +766,13 @@ function keyStr(o){ return JSON.stringify(o,Object.keys(o).sort()); }
 function syncStatus(){
   var t=$("syncTxt"); if(!t) return;
   var k=CNAMES.filter(function(n){return FB.first[n]}).length, all=k===CNAMES.length, txt="";
-  if(FB.off) txt="Cloud band, data sirf is phone me";
+  if(FB.off) txt="Cloud sync off, data is on this phone only";
   else if(FB.user){
-    if(all&&!FB.err) txt="Cloud sync chalu: "+FB.user.email;
+    if(all&&!FB.err) txt="Cloud sync on: "+FB.user.email;
     else if(FB.err){
-      var hint=/permission/.test(FB.err)?" (Firestore Rules check karo: email match aur Publish)":/unavailable|network|nahi ho/.test(FB.err)?" (net ya network block check karo)":"";
+      var hint=/permission/.test(FB.err)?" (check Firestore Rules: the email must match and the Rules must be published)":/unavailable|network|could not/.test(FB.err)?" (check internet or network blocking)":"";
       txt="Cloud error: "+FB.err+hint;
-    } else txt="Cloud se connect ho raha hai ("+k+"/4)...";
+    } else txt="Connecting to cloud ("+k+"/4)...";
   }
   if(FB.diag&&!all) txt+="\n"+FB.diag;
   t.textContent=txt;
@@ -779,19 +781,19 @@ function syncStatus(){
 }
 function fsDiag(){
   if(!FB.user) return;
-  FB.diag="Jaanch ho rahi hai..."; syncStatus();
+  FB.diag="Checking connection..."; syncStatus();
   FB.user.getIdToken().then(function(tk){
     return fetch("https://firestore.googleapis.com/v1/projects/"+FBCFG.projectId+"/databases/(default)/documents/lines?pageSize=1",{headers:{Authorization:"Bearer "+tk}}).then(function(r){ return r.json().then(function(j){ return {s:r.status,j:j}; }); });
   }).then(function(o){
     var st=(o.j&&o.j.error&&o.j.error.status)||"";
-    FB.diag=o.s===200?"Jaanch: Firestore server se baat ho rahi hai (REST theek). Sirf live connection atak raha hai, network ya phone ki wajah se.":
-      o.s===403?"Jaanch: "+st+". Rules ne roka hai: email match karo aur Publish karo.":
-      o.s===404?"Jaanch: Firestore database nahi mila. Database (default) create hua ya nahi dekho.":
-      "Jaanch: HTTP "+o.s+" "+st;
+    FB.diag=o.s===200?"Check: the Firestore server is reachable (REST works), but the live connection is stuck. Likely a network or phone issue.":
+      o.s===403?"Check: "+st+". Rules blocked the request. Make sure the email matches and the Rules are published.":
+      o.s===404?"Check: Firestore database not found. Make sure the (default) database is created.":
+      "Check: HTTP "+o.s+" "+st;
     syncStatus();
-  }).catch(function(){ FB.diag="Jaanch: firestore.googleapis.com tak net pahunch nahi raha (network block ya net band)."; syncStatus(); });
+  }).catch(function(){ FB.diag="Check: cannot reach firestore.googleapis.com (network blocked or offline)."; syncStatus(); });
 }
-function resync(){ if(!FB.user) return; stopSync(); FB.err=""; FB.diag=""; startSync(); syncStatus(); toast("Sync dobara shuru"); }
+function resync(){ if(!FB.user) return; stopSync(); FB.err=""; FB.diag=""; startSync(); syncStatus(); toast("Sync restarted"); }
 function refreshUI(){
   if(cur==="home") renderHome(); else if(cur==="view"){ fillFilters(); render(); }
   else if(cur==="forms") renderForms(); else if(cur==="cn") renderCourses(); else if(cur==="cnl") renderNotes();
@@ -809,7 +811,7 @@ function cloudPush(n){
 }
 function startSync(){
   FB.on=true;
-  setTimeout(function(){ if(FB.user&&!FB.err&&!CNAMES.every(function(x){return FB.first[x]})){ FB.err="connect nahi ho paaya"; syncStatus(); fsDiag(); } },15000);
+  setTimeout(function(){ if(FB.user&&!FB.err&&!CNAMES.every(function(x){return FB.first[x]})){ FB.err="could not connect"; syncStatus(); fsDiag(); } },15000);
   CNAMES.forEach(function(n){
     FB.unsubs.push(FB.db.collection(n).onSnapshot({includeMetadataChanges:true},function(snap){
       var remote=[], st={};
@@ -855,25 +857,25 @@ function lgDiag(em,pw){
   .then(function(r){return r.json()}).then(function(j){
     if(j.error){
       var m=j.error.message||"";
-      er.textContent=/INVALID_LOGIN|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL/.test(m)?"Email ya password galat hai (Firebase Authentication > Users me check karo)":/OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/.test(m)?"Firebase me Email/Password sign-in enable nahi hai":"Firebase error: "+m;
-    } else er.textContent="Email aur password sahi hain, par is file ko content:// se kholne ki wajah se Firebase atak raha hai. App ko https par host karna hoga.";
+      er.textContent=/INVALID_LOGIN|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL/.test(m)?"Wrong email or password (check Firebase Authentication > Users)":/OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/.test(m)?"Email/Password sign-in is not enabled in Firebase":"Firebase error: "+m;
+    } else er.textContent="Email and password are correct, but Firebase is stuck because this file is opened from content://. Host the app on https.";
     lgReset();
-  }).catch(function(){ er.textContent="Internet ya network block hai, Firebase tak pahunch nahi paaya."; lgReset(); });
+  }).catch(function(){ er.textContent="Internet is off or blocked. Could not reach Firebase."; lgReset(); });
 }
 function doLogin(){
   var em=$("lgEmail").value.trim(), pw=$("lgPass").value, er=$("lgErr"), done=false;
-  if(!em||!pw){ er.textContent="Email aur password dono likho"; return; }
-  er.textContent=""; $("lgBtn").textContent="Login ho raha hai..."; $("lgBtn").disabled=true;
+  if(!em||!pw){ er.textContent="Enter email and password"; return; }
+  er.textContent=""; $("lgBtn").textContent="Logging in..."; $("lgBtn").disabled=true;
   var tm=setTimeout(function(){ if(!done) lgDiag(em,pw); },12000);
   FB.auth.signInWithEmailAndPassword(em,pw).then(function(){ $("lgPass").value=""; }).catch(function(e){
     var c=e&&e.code||"";
-    er.textContent=/invalid|wrong|user-not-found/.test(c)?"Email ya password galat hai":c==="auth/network-request-failed"?"Internet check karo":c==="auth/too-many-requests"?"Bahut try ho gaye, thodi der baad try karo":"Login nahi hua: "+c;
+    er.textContent=/invalid|wrong|user-not-found/.test(c)?"Wrong email or password":c==="auth/network-request-failed"?"Check your internet":c==="auth/too-many-requests"?"Too many attempts. Try again later":"Login failed: "+c;
   }).then(function(){ done=true; clearTimeout(tm); lgReset(); });
 }
 function useLocal(){ try{ localStorage.setItem("ld_local_only","1"); }catch(e){} location.reload(); }
 function enableCloud(){ try{ localStorage.removeItem("ld_local_only"); }catch(e){} location.reload(); }
 function doLogout(){
-  if(!FB.auth||!confirm("Logout karna hai? Phone me data rahega, par dobara login aur naya MPIN banana padega.")) return;
+  if(!FB.auth||!confirm("Log out? Data stays on this phone, but you will need to log in again and create a new MPIN.")) return;
   try{ localStorage.removeItem("ld_mpin"); }catch(e){}
   FB.auth.signOut();
 }
@@ -882,9 +884,9 @@ var lk={mode:"enter",buf:"",first:"",tries:0,until:0}, hiddenAt=0;
 function cyrb53(str,seed){ var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed; for(var i=0,ch;i<str.length;i++){ ch=str.charCodeAt(i); h1=Math.imul(h1^ch,2654435761); h2=Math.imul(h2^ch,1597334677); } h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909); h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909); return 4294967296*(2097151&h2)+(h1>>>0); }
 function mpHash(pin,salt){ var h=pin+salt; for(var i=0;i<1500;i++) h=String(cyrb53(h+salt,i)); return h; }
 function mpGet(){ try{ return JSON.parse(localStorage.getItem("ld_mpin")||"null"); }catch(e){ return null; } }
-function mpSave(pin){ var salt=Math.random().toString(36).slice(2)+Date.now().toString(36); try{ localStorage.setItem("ld_mpin",JSON.stringify({s:salt,h:mpHash(pin,salt)})); }catch(e){ toast("MPIN save nahi hua"); } }
+function mpSave(pin){ var salt=Math.random().toString(36).slice(2)+Date.now().toString(36); try{ localStorage.setItem("ld_mpin",JSON.stringify({s:salt,h:mpHash(pin,salt)})); }catch(e){ toast("Could not save MPIN"); } }
 function mpCheck(pin){ var o=mpGet(); return !!o&&mpHash(pin,o.s)===o.h; }
-var LKT={enter:"MPIN daalo",old:"Purana MPIN daalo",set1:"Naya MPIN banao (4 digit)",set2:"MPIN dobara daalo"};
+var LKT={enter:"Enter MPIN",old:"Enter current MPIN",set1:"Create a new 4-digit MPIN",set2:"Re-enter MPIN"};
 function lkDraw(){ var d=document.querySelectorAll("#lkDots i"); for(var i=0;i<d.length;i++) d[i].className=i<lk.buf.length?"on":""; }
 function lkOpen(mode,cancelable){
   lk.mode=mode; lk.buf=""; lk.first=""; $("lkErr").textContent=""; $("lkTitle").textContent=LKT[mode]; lkDraw();
@@ -895,7 +897,7 @@ function lkClose(){ $("lock").classList.add("hide"); lk.buf=""; }
 function ensureMpin(){ if(!mpGet()&&$("lock").classList.contains("hide")) lkOpen("set1",false); }
 function changeMpin(){ lkOpen(mpGet()?"old":"set1",true); }
 function lkKey(k){
-  if(Date.now()<lk.until){ $("lkErr").textContent="Thodi der baad try karo"; return; }
+  if(Date.now()<lk.until){ $("lkErr").textContent="Try again shortly"; return; }
   if(k==="b") lk.buf=lk.buf.slice(0,-1); else if(lk.buf.length<4) lk.buf+=k;
   lkDraw(); if(lk.buf.length===4) setTimeout(lkDone,120);
 }
@@ -906,20 +908,20 @@ function lkDone(){
   var b=lk.buf; lk.buf=""; lkDraw(); $("lkErr").textContent="";
   if(lk.mode==="enter"||lk.mode==="old"){
     if(mpCheck(b)){ lk.tries=0; if(lk.mode==="enter") lkClose(); else { lk.mode="set1"; $("lkTitle").textContent=LKT.set1; } }
-    else { lk.tries++; if(lk.tries>=5){ lk.tries=0; lk.until=Date.now()+30000; lkBad("5 baar galat, 30 second ruko"); } else lkBad("Galat MPIN"); }
+    else { lk.tries++; if(lk.tries>=5){ lk.tries=0; lk.until=Date.now()+30000; lkBad("Wrong 5 times. Wait 30 seconds"); } else lkBad("Wrong MPIN"); }
   } else if(lk.mode==="set1"){ lk.first=b; lk.mode="set2"; $("lkTitle").textContent=LKT.set2; }
   else if(lk.mode==="set2"){
-    if(b===lk.first){ mpSave(b); lkClose(); toast("MPIN set ho gaya"); }
-    else { lk.mode="set1"; $("lkTitle").textContent=LKT.set1; lkBad("MPIN match nahi hua, dobara banao"); }
+    if(b===lk.first){ mpSave(b); lkClose(); toast("MPIN set"); }
+    else { lk.mode="set1"; $("lkTitle").textContent=LKT.set1; lkBad("MPINs do not match. Try again"); }
   }
 }
 function lkForgot(){
   if(FB.off||!FB.auth){
-    if(!confirm("MPIN reset karke naya banana hai? Data safe rahega.")) return;
+    if(!confirm("Reset MPIN and create a new one? Your data stays safe.")) return;
     try{ localStorage.removeItem("ld_mpin"); }catch(e){}
     lkOpen("set1",false); return;
   }
-  if(!confirm("MPIN reset karne ke liye logout hoga, phir login karke naya MPIN banana hoga. Data safe rahega. Aage badhna hai?")) return;
+  if(!confirm("To reset the MPIN you will be logged out, then log in again and create a new MPIN. Your data stays safe. Continue?")) return;
   try{ localStorage.removeItem("ld_mpin"); }catch(e){}
   lkClose(); FB.auth.signOut();
 }
@@ -935,7 +937,7 @@ function loadForms(){
   try{ forms=JSON.parse(localStorage.getItem("line_forms_v1")||"[]"); if(!Array.isArray(forms)) forms=[]; }catch(e){ forms=[]; }
   try{ showFull=localStorage.getItem("ld_showfull")==="1"; }catch(e){}
 }
-function persistForms(){ try{ localStorage.setItem("line_forms_v1",JSON.stringify(forms)); }catch(e){ toast("Save nahi ho paya"); } cloudPush("forms"); }
+function persistForms(){ try{ localStorage.setItem("line_forms_v1",JSON.stringify(forms)); }catch(e){ toast("Could not save"); } cloudPush("forms"); }
 function fullOf(l){ var k=(l||"").trim().toLowerCase(); var f=forms.find(function(x){return x.short.toLowerCase()===k}); return f?f.full:""; }
 function renderForms(){
   $("frSw").checked=showFull;
@@ -950,20 +952,20 @@ function renderForms(){
   var de='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
   $("frList").innerHTML=list.length?list.map(function(f){
     return '<div class="fr"><span class="fs">'+esc(f.short)+'</span><span class="ft">'+esc(f.full)+'</span><div class="pa"><button onclick="editForm('+f.id+')" aria-label="Edit">'+ed+'</button><button class="x" onclick="delForm('+f.id+')" aria-label="Delete">'+de+'</button></div></div>';
-  }).join(""):'<div class="empty" style="border:none">'+(forms.length?"Koi full form match nahi hua.":"Abhi koi full form nahi hai. Upar line name aur uska full form likh ke save karo.")+'</div>';
+  }).join(""):'<div class="empty" style="border:none">'+(forms.length?"No full forms match.":"No full forms yet. Enter a line name and its full form above, then save.")+'</div>';
 }
 function pickShort(i){ $("frShort").value=frNames[i]; $("frFull").focus(); }
 function resetForm(){ editFormId=null; $("frShort").value=""; $("frFull").value=""; $("frSave").textContent="Save full form"; $("frCancel").classList.add("hide"); }
 function saveForm(){
   var sh=$("frShort").value.trim(), fu=$("frFull").value.trim();
-  if(!sh||!fu){ toast("Line name aur full form dono likho"); return; }
+  if(!sh||!fu){ toast("Enter both line name and full form"); return; }
   var ex=forms.find(function(f){return f.short.toLowerCase()===sh.toLowerCase()&&f.id!==editFormId});
   if(editFormId){
     var t=forms.find(function(f){return f.id===editFormId});
-    if(t){ if(ex){ toast("Ye line name pehle se hai"); return; } t.short=sh; t.full=fu; }
+    if(t){ if(ex){ toast("This line name already exists"); return; } t.short=sh; t.full=fu; }
   } else if(ex){ ex.short=sh; ex.full=fu; }
   else forms.push({id:Date.now(),short:sh,full:fu});
-  persistForms(); resetForm(); renderForms(); toast("Save ho gaya");
+  persistForms(); resetForm(); renderForms(); toast("Saved");
 }
 function editForm(id){
   var f=forms.find(function(x){return x.id===id}); if(!f) return;
@@ -971,8 +973,8 @@ function editForm(id){
   $("frSave").textContent="Update full form"; $("frCancel").classList.remove("hide"); window.scrollTo(0,0);
 }
 function delForm(id){
-  if(!confirm("Ye full form delete karna hai?")) return;
-  forms=forms.filter(function(f){return f.id!==id}); persistForms(); renderForms(); toast("Delete ho gaya");
+  if(!confirm("Delete this full form?")) return;
+  forms=forms.filter(function(f){return f.id!==id}); persistForms(); renderForms(); toast("Deleted");
 }
 function setShowFull(){ showFull=$("frSw").checked; try{ localStorage.setItem("ld_showfull",showFull?"1":"0"); }catch(e){} }
 function lineRows(g,terms){
@@ -1009,7 +1011,7 @@ function addTo(id){
 
 /* backup */
 function exportData(){
-  if(!data.length&&!forms.length&&!cn.notes.length&&!cn.courses.length){ toast("Backup ke liye data nahi hai"); return; }
+  if(!data.length&&!forms.length&&!cn.notes.length&&!cn.courses.length){ toast("Nothing to back up"); return; }
   var b=new Blob([JSON.stringify({data:data,forms:forms,cn:cn},null,2)],{type:"application/json"}), a=document.createElement("a");
   a.href=URL.createObjectURL(b); a.download="line-data-backup.json"; document.body.appendChild(a); a.click(); a.remove();
 }
@@ -1026,8 +1028,8 @@ function importData(e){
     }
     var have={}; data.forEach(function(d){have[d.id]=1}); var n=0;
     arr.forEach(function(d){ if(d&&d.brand&&d.model&&!have[d.id]){ data.push(d); n++; } });
-    persist(); renderHome(); toast(n+" records add hue");
-  }catch(x){ toast("File sahi nahi hai"); } e.target.value=""; };
+    persist(); renderHome(); toast(n+" records added");
+  }catch(x){ toast("Invalid file"); } e.target.value=""; };
   r.readAsText(f);
 }
 
