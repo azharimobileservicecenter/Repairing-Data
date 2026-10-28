@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Line Data</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffc400"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -155,6 +156,10 @@ textarea{resize:vertical;line-height:1.5;min-height:140px}
 .dlgc{background:#fff;color:var(--ink)}
 .dlgk{background:var(--ink);color:var(--y)}
 .dlgk.dng{background:var(--warn);border-color:var(--warn);color:#fff}
+.tbar{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.tbar button{width:38px;height:34px;border:1.5px solid var(--ink);background:#fff;border-radius:9px;font-size:16px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.tbar span{font-size:12px;color:var(--muted)}
+.nb b{font-weight:700;color:var(--ink)}
 mark{background:#ffe066;color:inherit;border-radius:3px}
 .empty{text-align:center;color:var(--muted);padding:34px 10px;background:#fff;border:1.5px dashed #9aa5b0;border-radius:14px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--y);font-weight:600;padding:11px 18px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
@@ -300,7 +305,7 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
     </div>
     <datalist id="catList"></datalist>
     <div class="f"><label for="neTitle">Title</label><input id="neTitle" autocomplete="off"></div>
-    <div class="f"><label for="neBody">Notes</label><textarea id="neBody" rows="9"></textarea></div>
+    <div class="f"><label for="neBody">Notes</label><div class="tbar"><button type="button" onclick="boldSel()" aria-label="Bold"><b>B</b></button><span>Select text, then tap B for bold</span></div><textarea id="neBody" rows="9"></textarea></div>
     <div class="f"><label>Notebook photo</label><div id="nePhoto"></div>
       <button class="addrow" onclick="document.getElementById('neFile').click()">+ Add photo</button>
       <input type="file" id="neFile" accept="image/*" class="hide" onchange="pickPhoto(event)"></div>
@@ -528,6 +533,12 @@ function hl(text,terms){
   return t;
 }
 function val(t,terms){ return t?hl(t,terms):'<span class="nil">&mdash;</span>'; }
+function nativeSave(b,name,mime,share){
+  if(!(window.AndroidBridge&&window.AndroidBridge.saveFile)) return false;
+  var r=new FileReader();
+  r.onloadend=function(){ try{ window.AndroidBridge.saveFile(String(r.result).split(",")[1]||"",name,mime,!!share); }catch(e){ toast("Could not save file"); } };
+  r.readAsDataURL(b); return true;
+}
 function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
 function shareImg(id){
   var d0=data.find(function(x){return x.id===id}); if(!d0) return;
@@ -570,6 +581,7 @@ function shareImg(id){
       if(!b){ toast("Could not create image"); return; }
       var name=(d0.brand+"-"+d0.model).replace(/[^\w\-]+/g,"_")+".png", f;
       try{ f=new File([b],name,{type:"image/png"}); }catch(e){ f=null; }
+      if(nativeSave(b,name,"image/png",true)) return;
       if(f&&navigator.canShare&&navigator.canShare({files:[f]})){ navigator.share({files:[f],title:d0.brand+" "+d0.model}).catch(function(){}); return; }
       var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image downloaded");
     },"image/png");
@@ -587,6 +599,51 @@ function ask(o){
 }
 function dlgClose(){ $("dlg").classList.add("hide"); dlgCb=null; }
 function dlgOk(){ var cb=dlgCb, v=$("dlgIn").value; dlgClose(); if(cb) cb(v); }
+/* ---------- Bold text: *text* or **text** ---------- */
+var BOLD_SRC="(^|[^\\w*])(?:\\*\\*([^\\s*](?:[^*\\n]*[^\\s*])?)\\*\\*|\\*([^\\s*](?:[^*\\n]*[^\\s*])?)\\*)(?![\\w*])";
+function boldRuns(text){
+  var re=new RegExp(BOLD_SRC,"g"), runs=[], last=0, m;
+  while((m=re.exec(text))){
+    var st=m.index+m[1].length;
+    if(st>last) runs.push({t:text.slice(last,st),b:0});
+    runs.push({t:m[2]||m[3],b:1}); last=m.index+m[0].length;
+  }
+  if(last<text.length) runs.push({t:text.slice(last),b:0});
+  return runs;
+}
+function richHtml(text,terms){
+  return boldRuns(String(text||"")).map(function(r){ var h=r.t?hl(r.t,terms):""; return r.b?"<b>"+h+"</b>":h; }).join("");
+}
+function boldSel(){
+  var ta=$("neBody"), v=ta.value, s=ta.selectionStart, e=ta.selectionEnd;
+  if(s===e){ toast("Select some text first"); return; }
+  var chunk=v.slice(s,e);
+  var out=chunk.split("\n").map(function(line){
+    var t=line.trim(); if(!t) return line;
+    var lead=line.match(/^\s*/)[0], trail=line.match(/\s*$/)[0], inner=t.match(/^\*{1,2}([^*]+)\*{1,2}$/);
+    return lead+(inner?inner[1]:"*"+t+"*")+trail;
+  }).join("\n");
+  ta.value=v.slice(0,s)+out+v.slice(e); ta.focus(); ta.setSelectionRange(s,s+out.length);
+}
+function wrapRuns(c,text,maxW,SANS,size){
+  var lines=[], sp=c.measureText(" ").width;
+  String(text).split("\n").forEach(function(p){
+    if(!p.trim()){ lines.push([]); return; }
+    var line=[], w=0, carry=false;
+    boldRuns(p).forEach(function(r){
+      var re=/(\s*)(\S+)/g, m, first=true;
+      while((m=re.exec(r.t))){
+        var tok={t:m[2],b:r.b,sp:m[1].length>0||(first&&carry)}; first=false;
+        c.font=(r.b?'700 ':'400 ')+size+'px '+SANS; var tw=c.measureText(tok.t).width, gap=(tok.sp&&line.length)?sp:0;
+        if(line.length&&w+gap+tw>maxW){ lines.push(line); tok.sp=false; line=[tok]; w=tw; }
+        else { line.push(tok); w+=gap+tw; }
+      }
+      carry=/\s$/.test(r.t)||(!r.t.trim()&&carry);
+    });
+    lines.push(line);
+  });
+  return lines;
+}
 /* ---------- Course Notes ---------- */
 function loadCN(){
   try{ var o=JSON.parse(localStorage.getItem("course_notes_v1")||"{}"); cn={courses:Array.isArray(o.courses)?o.courses:[],notes:Array.isArray(o.notes)?o.notes:[]}; }catch(e){ cn={courses:[],notes:[]}; }
@@ -649,7 +706,7 @@ function noteCard(n,terms){
   var op=openNote===n.id;
   var h='<div class="nc'+(op?' op':'')+(n.pin?' pn':'')+'" onclick="toggleNote('+n.id+')"><div class="nh"><div class="nt">'+hl(n.title,terms)+'</div>'+(n.pin?'<span class="st">&#9733;</span>':'')+'</div>'+
   '<div class="nm">'+(n.cat?'<span class="tg">'+hl(n.cat,terms)+'</span>':'')+'<span>'+new Date(n.ts).toLocaleDateString("en-GB")+'</span>'+(n.photo?'<span>Photo</span>':'')+'</div>'+
-  (n.body?'<div class="nb">'+hl(n.body,terms)+'</div>':'');
+  (n.body?'<div class="nb">'+richHtml(n.body,terms)+'</div>':'');
   if(op){
     if(n.photo) h+='<img class="np" id="np'+n.id+'" alt="Notebook photo">';
     h+='<div class="na" onclick="event.stopPropagation()"><button onclick="pinNote('+n.id+')">'+(n.pin?'Unpin':'Pin')+'</button><button onclick="copyNote('+n.id+')">Copy</button><button onclick="shareNoteImg('+n.id+')">Image</button><button onclick="shareNoteText('+n.id+')">Text</button><button onclick="editNote('+n.id+')">Edit</button><button class="x" onclick="delNote('+n.id+')">Delete</button></div>';
@@ -673,7 +730,8 @@ function copyNote(id){
 }
 function shareNoteText(id){
   var n=cn.notes.find(function(x){return x.id===id}); if(!n) return;
-  if(navigator.share) navigator.share({title:n.title,text:noteText(n)}).catch(function(){}); else copyNote(id);
+  if(window.AndroidBridge&&window.AndroidBridge.shareText) window.AndroidBridge.shareText(noteText(n),n.title);
+  else if(navigator.share) navigator.share({title:n.title,text:noteText(n)}).catch(function(){}); else copyNote(id);
 }
 function fillCats(){
   var cid=Number($("neCourse").value), m={};
@@ -728,7 +786,7 @@ function shareNoteImg(id){
     var W=900,pad=48,SANS='"Chakra Petch",system-ui,sans-serif';
     var cv=document.createElement("canvas"); cv.width=W; cv.height=400; var c=cv.getContext("2d");
     c.font='700 46px '+SANS; var tl=wrapT(c,n.title,W-pad*2-30);
-    c.font='400 30px '+SANS; var bl=n.body?wrapT(c,n.body,W-pad*2):[];
+    c.font='400 30px '+SANS; var bl=n.body?wrapRuns(c,n.body,W-pad*2,SANS,30):[];
     var H=Math.min(9000,146+120+tl.length*58+(bl.length?36+bl.length*44:0)+110);
     cv.height=H; c=cv.getContext("2d"); c.textBaseline="alphabetic";
     c.fillStyle="#fff"; c.fillRect(0,0,W,H); c.fillStyle="#ffc400"; c.fillRect(0,0,W,140); c.fillStyle="#0f1720"; c.fillRect(0,140,W,6);
@@ -739,12 +797,14 @@ function shareNoteImg(id){
     var y=206; c.fillStyle="#66727f"; c.font='500 26px '+SANS; c.fillText((co?co.name:"")+(n.cat?"  /  "+n.cat:""),pad,y);
     y+=22; c.fillStyle="#ffc400"; c.fillRect(pad,y,10,tl.length*58-6); c.fillStyle="#0f1720"; c.font='700 46px '+SANS;
     tl.forEach(function(l,i){ c.fillText(l,pad+30,y+44+i*58); }); y+=tl.length*58+20;
-    if(bl.length){ c.fillStyle="#dde2e7"; c.fillRect(pad,y,W-pad*2,2); y+=36; c.fillStyle="#1c2733"; c.font='400 30px '+SANS; bl.forEach(function(l,i){ c.fillText(l,pad,y+i*44); }); }
+    if(bl.length){ c.fillStyle="#dde2e7"; c.fillRect(pad,y,W-pad*2,2); y+=36; c.fillStyle="#1c2733"; var spw=0; c.font='400 30px '+SANS; spw=c.measureText(" ").width;
+      bl.forEach(function(l,i){ var x=pad; l.forEach(function(tk){ if(tk.sp&&x>pad) x+=spw; c.font=(tk.b?'700 ':'400 ')+'30px '+SANS; c.fillText(tk.t,x,y+i*44); x+=c.measureText(tk.t).width; }); }); }
     c.fillStyle="#dde2e7"; c.fillRect(pad,H-84,W-pad*2,2); c.fillStyle="#66727f"; c.font='500 24px '+SANS;
     c.fillText("Course Notes",pad,H-40); c.textAlign="right"; c.fillText(new Date(n.ts).toLocaleDateString("en-GB"),W-pad,H-40); c.textAlign="left";
     cv.toBlob(function(b){
       if(!b){ toast("Could not create image"); return; }
       var name=n.title.replace(/[^\w\-]+/g,"_").slice(0,40)+".png", f; try{ f=new File([b],name,{type:"image/png"}); }catch(e){ f=null; }
+      if(nativeSave(b,name,"image/png",true)) return;
       if(f&&navigator.canShare&&navigator.canShare({files:[f]})){ navigator.share({files:[f],title:n.title}).catch(function(){}); return; }
       var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("Image downloaded");
     },"image/png");
@@ -1062,6 +1122,7 @@ function addTo(id){
 function exportData(){
   if(!data.length&&!forms.length&&!cn.notes.length&&!cn.courses.length){ toast("Nothing to back up"); return; }
   var b=new Blob([JSON.stringify({data:data,forms:forms,cn:cn},null,2)],{type:"application/json"}), a=document.createElement("a");
+  if(nativeSave(b,"line-data-backup.json","application/json",false)) return;
   a.href=URL.createObjectURL(b); a.download="line-data-backup.json"; document.body.appendChild(a); a.click(); a.remove();
 }
 function importData(e){
@@ -1087,6 +1148,7 @@ try{ history.replaceState({s:"home"},""); }catch(e){}
 window.addEventListener("popstate",function(e){ if(!$("dlg").classList.contains("hide")) dlgClose(); depth=Math.max(0,depth-1); show((e.state&&e.state.s)||"home",true); });
 if(mpGet()) lkOpen("enter",false);
 cloudInit();
+try{ if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)&&!window.AndroidBridge) navigator.serviceWorker.register("sw.js"); }catch(e){}
 </script>
 </body>
 </html>
