@@ -160,6 +160,17 @@ textarea{resize:vertical;line-height:1.5;min-height:140px}
 .tbar button{width:38px;height:34px;border:1.5px solid var(--ink);background:#fff;border-radius:9px;font-size:16px;cursor:pointer;font-family:inherit;color:var(--ink)}
 .tbar span{font-size:12px;color:var(--muted)}
 .nb b{font-weight:700;color:var(--ink)}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.th{position:relative;width:84px;height:84px}
+.th img,.th .tph{width:100%;height:100%;object-fit:cover;border-radius:10px;border:1.5px solid var(--line);background:#f1f3f5}
+.th button{position:absolute;top:-7px;right:-7px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;font-size:15px;line-height:1;cursor:pointer;color:var(--ink)}
+.undo{position:fixed;left:16px;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:80;background:var(--ink);color:#fff;border-radius:14px;padding:10px 12px 10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;max-width:520px;margin:0 auto}
+.undo button{background:var(--y);color:var(--ink);border:none;border-radius:10px;padding:7px 16px;font-weight:700;font-family:inherit;cursor:pointer}
+.pvb{position:fixed;left:0;top:0;right:0;bottom:0;z-index:95;background:#000;overflow:hidden;touch-action:none}
+#pvImg{position:absolute;left:50%;top:50%;max-width:100%;max-height:100%;transform:translate(-50%,-50%);user-select:none;-webkit-user-drag:none}
+.pvx{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#fff;font-size:26px;z-index:2;cursor:pointer}
+.pvs{position:absolute;top:50%;width:44px;height:64px;transform:translateY(-50%);background:rgba(255,255,255,.16);color:#fff;border:none;font-size:30px;z-index:2;cursor:pointer}
+.pvn{position:absolute;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom,0px));text-align:center;color:#fff;font-size:13px;opacity:.8;z-index:2}
 mark{background:#ffe066;color:inherit;border-radius:3px}
 .empty{text-align:center;color:var(--muted);padding:34px 10px;background:#fff;border:1.5px dashed #9aa5b0;border-radius:14px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--y);font-weight:600;padding:11px 18px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
@@ -284,7 +295,8 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
     <div class="f"><label for="cnName">New course</label><input id="cnName" autocomplete="off"></div>
     <button class="save" onclick="addCourse()">Add course</button>
   </div>
-  <div class="count" style="margin-top:16px"><span id="cnCnt"></span><span></span></div>
+  <div class="search" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="cnQ" placeholder="Search all notes" oninput="renderCourses()" autocomplete="off"></div>
+  <div class="count"><span id="cnCnt"></span><span></span></div>
   <div class="cards" id="cnList"></div>
 </section>
 
@@ -292,7 +304,7 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
   <div class="top"><button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2 id="cnlTitle">Course</h2></div>
   <button class="save" style="margin:0 0 12px" onclick="newNote()">+ New note</button>
   <div class="stk"><div class="bchips" id="ncChips"></div><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="ncQ" placeholder="Search notes" oninput="renderNotes()" autocomplete="off"></div></div>
-  <div class="count"><span id="ncCnt"></span><span></span></div>
+  <div class="count"><span id="ncCnt"></span><span style="display:flex;gap:14px"><button id="ncRen" class="hide" onclick="renameCat()">Rename category</button><button onclick="exportPdf()">Export PDF</button></span></div>
   <div class="cards" id="ncList"></div>
 </section>
 
@@ -307,8 +319,8 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
     <div class="f"><label for="neTitle">Title</label><input id="neTitle" autocomplete="off"></div>
     <div class="f"><label for="neBody">Notes</label><div class="tbar"><button type="button" onclick="boldSel()" aria-label="Bold"><b>B</b></button><span>Select text, then tap B for bold</span></div><textarea id="neBody" rows="9"></textarea></div>
     <div class="f"><label>Notebook photo</label><div id="nePhoto"></div>
-      <button class="addrow" onclick="document.getElementById('neFile').click()">+ Add photo</button>
-      <input type="file" id="neFile" accept="image/*" class="hide" onchange="pickPhoto(event)"></div>
+      <button class="addrow" onclick="document.getElementById('neFile').click()">+ Add photos</button>
+      <input type="file" id="neFile" accept="image/*" multiple class="hide" onchange="pickPhoto(event)"></div>
     <button class="save" onclick="saveNote()">Save note</button>
     <button class="ghost" onclick="goBack()">Cancel</button>
   </div>
@@ -345,13 +357,21 @@ mark{background:#ffe066;color:inherit;border-radius:3px}
     <div class="dlgr"><button class="dlgc" onclick="dlgClose()">Cancel</button><button id="dlgOk" class="dlgk" onclick="dlgOk()">OK</button></div>
   </div>
 </div>
+<div id="pv" class="pvb hide">
+  <button class="pvx" onclick="closePv()" aria-label="Close">&times;</button>
+  <img id="pvImg" alt="Photo">
+  <button class="pvs" id="pvP" style="left:0" onclick="pvStep(-1)" aria-label="Previous">&#8249;</button>
+  <button class="pvs" id="pvQ" style="right:0" onclick="pvStep(1)" aria-label="Next">&#8250;</button>
+  <div class="pvn" id="pvN"></div>
+</div>
+<div id="undo" class="undo hide"><span id="undoMsg"></span><button onclick="doUndo()">Undo</button></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <script>
-var cn={courses:[],notes:[]}, curCourse=null, curCat="", ncCats=[], openNote=null, editNoteId=null, nePhoto=null, neMode="none", forms=[], showFull=false, editFormId=null, frNames=[], viewMode="list", brandsList=[], KEY="line_data_v1", data=[], editId=null, editIds=null;
+var cn={courses:[],notes:[]}, curCourse=null, curCat="", ncCats=[], openNote=null, editNoteId=null, nePics=[], neRemoved=[], photoWarned=false, undoState=null, forms=[], showFull=false, editFormId=null, frNames=[], viewMode="list", brandsList=[], KEY="line_data_v1", data=[], editId=null, editIds=null;
 
 try{ viewMode=localStorage.getItem("ld_view")||"list"; }catch(e){}
 function load(){ try{ data=JSON.parse(localStorage.getItem(KEY)||"[]"); if(!Array.isArray(data)) data=[]; }catch(e){ data=[]; } }
@@ -465,14 +485,13 @@ function editGroup(id){
 function delGroup(id){
   var d=data.find(function(x){return x.id===id}); if(!d) return;
   var k=d.brand.toLowerCase()+"|"+d.model.toLowerCase();
-  var n=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===k}).length;
+  var removed=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()===k}), n=removed.length;
   ask({title:"Delete model",msg:"Delete all "+n+(n===1?" line":" lines")+" of "+d.brand+" "+d.model+"?",ok:"Delete",danger:true,onOk:function(){
     data=data.filter(function(x){return x.brand.toLowerCase()+"|"+x.model.toLowerCase()!==k});
-    persist(); fillFilters(); render(); toast("Deleted");
+    persist(); fillFilters(); render();
+    offerUndo("Model deleted",function(){ removed.forEach(function(x){ data.push(x); }); persist(); fillFilters(); render(); });
   }});
 }
-
-/* filters */
 function fillFilters(){
   var b=$("fBrand").value, m=$("fModel").value, l=$("fLine").value;
   setOpts("fBrand","All brands",uniq("brand"),b);
@@ -647,13 +666,218 @@ function wrapRuns(c,text,maxW,SANS,size){
 /* ---------- Course Notes ---------- */
 function loadCN(){
   try{ var o=JSON.parse(localStorage.getItem("course_notes_v1")||"{}"); cn={courses:Array.isArray(o.courses)?o.courses:[],notes:Array.isArray(o.notes)?o.notes:[]}; }catch(e){ cn={courses:[],notes:[]}; }
+  cn.notes.forEach(function(n){ if(!n.pics) n.pics=n.photo?[n.id]:[]; n.photo=n.pics.length>0; });
 }
 function persistCN(){ try{ localStorage.setItem("course_notes_v1",JSON.stringify(cn)); }catch(e){ toast("Could not save. Storage may be full."); } cloudPush("courses"); cloudPush("notes"); }
 function courseOf(id){ return cn.courses.find(function(c){return c.id===id}); }
+function pk(p){ return /^\d+$/.test(String(p))?Number(p):String(p); }
 function idb(){ return new Promise(function(res,rej){ if(!window.indexedDB){ rej(); return; } var r=indexedDB.open("line_data_db",1); r.onupgradeneeded=function(){ r.result.createObjectStore("photos"); }; r.onsuccess=function(){res(r.result)}; r.onerror=function(){rej(r.error)}; }); }
-function photoPut(id,d){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").put(d,id); t.oncomplete=res; t.onerror=rej; }); }); }
-function photoGet(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var q=db.transaction("photos","readonly").objectStore("photos").get(id); q.onsuccess=function(){res(q.result)}; q.onerror=rej; }); }); }
-function photoDel(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").delete(id); t.oncomplete=res; t.onerror=rej; }); }); }
+function photoPut(id,d){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").put(d,pk(id)); t.oncomplete=res; t.onerror=rej; }); }); }
+function photoGet(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var q=db.transaction("photos","readonly").objectStore("photos").get(pk(id)); q.onsuccess=function(){res(q.result)}; q.onerror=rej; }); }); }
+function photoDel(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction("photos","readwrite"); t.objectStore("photos").delete(pk(id)); t.oncomplete=res; t.onerror=rej; }); }); }
+
+/* ---------- Photos: local + cloud ---------- */
+function picsOf(n){ return (n&&n.pics)||[]; }
+function newPid(){ return "ph"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function photoNote(e){ if(!photoWarned&&e&&/permission/.test(e.code||"")){ photoWarned=true; toast("Photo cloud sync is blocked. Add the photos rule in Firestore Rules."); } }
+function pcPut(pid,data,noteId){
+  if(!FB.user||!FB.db) return Promise.resolve();
+  return FB.db.collection("photos").doc(String(pid)).set({id:String(pid),note:noteId,data:data,ts:Date.now()})
+    .then(function(){ try{ localStorage.setItem("ld_pc_"+pid,"1"); }catch(e){} }).catch(photoNote);
+}
+function pcGet(pid){
+  if(!FB.user||!FB.db) return Promise.resolve(null);
+  return FB.db.collection("photos").doc(String(pid)).get().then(function(d){ return d.exists?d.data().data:null; }).catch(function(e){ photoNote(e); return null; });
+}
+function pcDel(pid){
+  if(!FB.user||!FB.db) return;
+  try{ localStorage.removeItem("ld_pc_"+pid); }catch(e){}
+  FB.db.collection("photos").doc(String(pid)).delete().catch(function(){});
+}
+function photoGetAny(pid){
+  return photoGet(pid).catch(function(){ return null; }).then(function(d){
+    if(d) return d;
+    return pcGet(pid).then(function(x){
+      if(x){ photoPut(pid,x).catch(function(){}); try{ localStorage.setItem("ld_pc_"+pid,"1"); }catch(e){} }
+      return x;
+    });
+  });
+}
+function uploadMissingPhotos(){
+  if(!FB.on||!FB.user||!FB.first.notes||FB.upl) return;
+  var todo=[]; cn.notes.forEach(function(n){ picsOf(n).forEach(function(pid){ if(!localStorage.getItem("ld_pc_"+pid)) todo.push({pid:pid,n:n.id}); }); });
+  if(!todo.length) return; FB.upl=true;
+  todo.reduce(function(p,o){ return p.then(function(){ return photoGet(o.pid).then(function(d){ return d?pcPut(o.pid,d,o.n):null; }).catch(function(){}); }); },Promise.resolve()).then(function(){ FB.upl=false; });
+}
+function compressImage(file){
+  return new Promise(function(res,rej){
+    var r=new FileReader(); r.onerror=rej;
+    r.onload=function(){ var im=new Image(); im.onerror=rej; im.onload=function(){
+      var dim=1280, q=0.72, out="";
+      for(var t=0;t<5;t++){
+        var k=Math.min(1,dim/Math.max(im.width,im.height)), cv=document.createElement("canvas");
+        cv.width=Math.round(im.width*k); cv.height=Math.round(im.height*k);
+        cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height); out=cv.toDataURL("image/jpeg",q);
+        if(out.length<=750000) break; dim=Math.round(dim*0.8); q=Math.max(0.5,q-0.06);
+      }
+      res(out);
+    }; im.src=r.result; };
+    r.readAsDataURL(file);
+  });
+}
+function loadPics(){
+  var els=document.querySelectorAll(".nc.op .np");
+  Array.prototype.forEach.call(els,function(el){
+    photoGetAny(el.getAttribute("data-pid")).then(function(d){ if(d) el.src=d; else el.alt="This photo is not on this phone yet"; });
+  });
+}
+function refreshNotes(){ if(cur==="cn") renderCourses(); else renderNotes(); }
+
+/* ---------- Photo viewer (tap to zoom) ---------- */
+var pv={list:[],i:0,s:1,x:0,y:0,d0:0,s0:1,sx:0,sy:0,x0:0,y0:0,t:0,mx:0,my:0};
+function pvApply(){ $("pvImg").style.transform="translate(-50%,-50%) translate("+pv.x+"px,"+pv.y+"px) scale("+pv.s+")"; }
+function pvShow(){
+  $("pvImg").src=pv.list[pv.i]; $("pvN").textContent=(pv.i+1)+" / "+pv.list.length; pv.s=1; pv.x=0; pv.y=0; pvApply();
+  $("pvP").classList.toggle("hide",pv.list.length<2); $("pvQ").classList.toggle("hide",pv.list.length<2);
+}
+function viewPic(el){
+  var all=Array.prototype.slice.call(document.querySelectorAll(".nc.op .np")).filter(function(e){return e.getAttribute("src")});
+  pv.list=all.map(function(e){return e.getAttribute("src")}); pv.i=Math.max(0,all.indexOf(el));
+  if(!pv.list.length) return; pvShow(); $("pv").classList.remove("hide");
+}
+function closePv(){ $("pv").classList.add("hide"); }
+function pvStep(d){ pv.i=(pv.i+d+pv.list.length)%pv.list.length; pvShow(); }
+(function(){
+  var el=document.getElementById("pv"); if(!el||!el.addEventListener) return;
+  function dist(t){ return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY); }
+  el.addEventListener("touchstart",function(e){
+    if(e.target.tagName==="BUTTON") return;
+    if(e.touches.length===2){ pv.d0=dist(e.touches); pv.s0=pv.s; }
+    else if(e.touches.length===1){
+      pv.sx=e.touches[0].clientX; pv.sy=e.touches[0].clientY; pv.x0=pv.x; pv.y0=pv.y;
+      var now=Date.now();
+      if(now-pv.t<300&&Math.abs(pv.sx-pv.mx)<30&&Math.abs(pv.sy-pv.my)<30){ pv.s=pv.s>1?1:2.5; pv.x=0; pv.y=0; pvApply(); }
+      pv.t=now; pv.mx=pv.sx; pv.my=pv.sy;
+    }
+  },{passive:true});
+  el.addEventListener("touchmove",function(e){
+    if(e.target.tagName==="BUTTON") return; e.preventDefault();
+    if(e.touches.length===2){ pv.s=Math.min(6,Math.max(1,pv.s0*dist(e.touches)/pv.d0)); pvApply(); }
+    else if(e.touches.length===1&&pv.s>1){ pv.x=pv.x0+e.touches[0].clientX-pv.sx; pv.y=pv.y0+e.touches[0].clientY-pv.sy; pvApply(); }
+  },{passive:false});
+  el.addEventListener("touchend",function(e){
+    if(pv.s<=1){
+      pv.x=0; pv.y=0; pvApply(); var t=e.changedTouches[0];
+      if(t&&e.touches.length===0){ var dx=t.clientX-pv.sx; if(Math.abs(dx)>90&&pv.list.length>1) pvStep(dx<0?1:-1); }
+    }
+  },{passive:true});
+})();
+
+/* ---------- Undo ---------- */
+function offerUndo(msg,undoFn,finalFn){
+  finalizeUndo();
+  undoState={undo:undoFn,fin:finalFn,t:setTimeout(finalizeUndo,7000)};
+  $("undoMsg").textContent=msg; $("undo").classList.remove("hide");
+}
+function finalizeUndo(){
+  if(!undoState) return; clearTimeout(undoState.t); var f=undoState.fin; undoState=null; $("undo").classList.add("hide"); if(f) f();
+}
+function doUndo(){
+  if(!undoState) return; clearTimeout(undoState.t); var u=undoState.undo; undoState=null; $("undo").classList.add("hide"); u(); toast("Restored");
+}
+
+/* ---------- PDF export ---------- */
+function loadImg(src){ return new Promise(function(res){ var im=new Image(); im.onload=function(){res(im)}; im.onerror=function(){res(null)}; im.src=src; }); }
+function buildPdf(jpgs,W,H){
+  var enc=new TextEncoder(), parts=[], offs=[], len=0, N=2+jpgs.length*3;
+  function add(x){ var u=typeof x==="string"?enc.encode(x):x; parts.push(u); len+=u.length; }
+  add(new Uint8Array([37,80,68,70,45,49,52,10,37,226,227,207,211,10]));
+  offs[1]=len; add("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+  var kids=jpgs.map(function(_,i){ return (3+i*3)+" 0 R"; }).join(" ");
+  offs[2]=len; add("2 0 obj\n<< /Type /Pages /Kids [ "+kids+" ] /Count "+jpgs.length+" >>\nendobj\n");
+  jpgs.forEach(function(j,i){
+    var p=3+i*3, ct=p+1, im=p+2, cs="q 595 0 0 842 0 0 cm /Im0 Do Q";
+    offs[p]=len; add(p+" 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 "+im+" 0 R >> >> /Contents "+ct+" 0 R >>\nendobj\n");
+    offs[ct]=len; add(ct+" 0 obj\n<< /Length "+cs.length+" >>\nstream\n"+cs+"\nendstream\nendobj\n");
+    offs[im]=len; add(im+" 0 obj\n<< /Type /XObject /Subtype /Image /Width "+W+" /Height "+H+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+j.length+" >>\nstream\n"); add(j); add("\nendstream\nendobj\n");
+  });
+  var xr=len, x="xref\n0 "+(N+1)+"\n0000000000 65535 f \n";
+  for(var k=1;k<=N;k++) x+=("0000000000"+offs[k]).slice(-10)+" 00000 n \n";
+  add(x+"trailer\n<< /Size "+(N+1)+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF\n");
+  return new Blob(parts,{type:"application/pdf"});
+}
+function deliverBlob(b,name,mime){
+  if(nativeSave(b,name,mime,true)) return;
+  var f; try{ f=new File([b],name,{type:mime}); }catch(e){ f=null; }
+  if(f&&navigator.canShare&&navigator.canShare({files:[f]})){ navigator.share({files:[f],title:name}).catch(function(){}); return; }
+  var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast("PDF downloaded");
+}
+function exportPdf(){
+  var co=courseOf(curCourse); if(!co) return;
+  var list=cn.notes.filter(function(n){ return n.course===curCourse&&(!curCat||n.cat===curCat); })
+    .sort(function(a,b){ return (a.cat||"").toLowerCase().localeCompare((b.cat||"").toLowerCase())||a.ts-b.ts; });
+  if(!list.length){ toast("No notes to export"); return; }
+  toast("Creating PDF...");
+  var SANS='"Chakra Petch",system-ui,sans-serif';
+  var ready=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('700 30px "Chakra Petch"'),document.fonts.load('400 30px "Chakra Petch"')]).catch(function(){}):Promise.resolve();
+  ready.then(function(){
+    return Promise.all(list.map(function(n){ return Promise.all(picsOf(n).map(function(pid){ return photoGetAny(pid).then(function(d){ return d?loadImg(d):null; }).catch(function(){ return null; }); })); }));
+  }).then(function(imgSets){
+    var PW=1240, PH=1754, M=90, CW=PW-2*M, BOT=PH-M-50, jpgs=[], cv=null, c=null, y=0, pageNo=0;
+    var mc=document.createElement("canvas").getContext("2d");
+    function jpegBytes(canvas){ var bin=atob(canvas.toDataURL("image/jpeg",0.85).split(",")[1]), u=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+    function endPage(){
+      if(!cv) return;
+      c.fillStyle="#66727f"; c.font='400 22px '+SANS; c.textAlign="left"; c.fillText(co.name,M,PH-M+10);
+      c.textAlign="right"; c.fillText("Page "+pageNo,PW-M,PH-M+10); c.textAlign="left";
+      jpgs.push(jpegBytes(cv)); cv=null;
+    }
+    function newPage(){
+      endPage(); pageNo++; cv=document.createElement("canvas"); cv.width=PW; cv.height=PH; c=cv.getContext("2d");
+      c.fillStyle="#fff"; c.fillRect(0,0,PW,PH); c.textBaseline="alphabetic"; y=M;
+    }
+    function put(t,x,font,col){ c.font=font; c.fillStyle=col; c.fillText(t,x,y); }
+    newPage();
+    c.fillStyle="#ffc400"; c.fillRect(0,0,PW,130); c.fillStyle="#0f1720"; c.fillRect(0,130,PW,6);
+    y=78; put("Line Data",M,'700 42px '+SANS,"#0f1720"); y=112; put("Azhari Mobile Service Center",M,'400 24px '+SANS,"#3b4650");
+    y=226; mc.font='700 58px '+SANS; wrapT(mc,co.name,CW).forEach(function(l){ put(l,M,'700 58px '+SANS,"#0f1720"); y+=70; });
+    if(curCat){ y-=6; put("Category: "+curCat,M,'400 28px '+SANS,"#66727f"); y+=40; }
+    put(list.length+(list.length===1?" note":" notes")+"   "+new Date().toLocaleDateString("en-GB"),M,'400 24px '+SANS,"#66727f"); y+=56;
+    list.forEach(function(n,idx){
+      if(y+220>BOT) newPage();
+      if(n.cat){ y+=22; put(n.cat,M,'400 24px '+SANS,"#66727f"); y+=14; }
+      mc.font='700 40px '+SANS;
+      wrapT(mc,n.title,CW).forEach(function(l){ if(y+56>BOT) newPage(); y+=40; put(l,M,'700 40px '+SANS,"#0f1720"); y+=16; });
+      y+=12;
+      mc.font='400 26px '+SANS; var spw=mc.measureText(" ").width;
+      if(n.body) wrapRuns(mc,n.body,CW,SANS,26).forEach(function(line){
+        if(!line.length){ y+=22; return; }
+        if(y+40>BOT) newPage();
+        var x=M; y+=28;
+        line.forEach(function(tk){ if(tk.sp&&x>M) x+=spw; var f=(tk.b?'700 ':'400 ')+'26px '+SANS; put(tk.t,x,f,"#1c2733"); c.font=f; x+=c.measureText(tk.t).width; });
+        y+=12;
+      });
+      (imgSets[idx]||[]).forEach(function(im){
+        if(!im) return;
+        var sc=Math.min(1,CW/im.width,1100/im.height), w=im.width*sc, h=im.height*sc;
+        y+=16; if(y+h>BOT) newPage();
+        c.drawImage(im,M,y,w,h); c.strokeStyle="#dde2e7"; c.lineWidth=2; c.strokeRect(M,y,w,h); y+=h+10;
+      });
+      y+=22; if(y+30<BOT){ c.fillStyle="#dde2e7"; c.fillRect(M,y,CW,2); } y+=34;
+    });
+    endPage();
+    var name=(co.name+(curCat?"-"+curCat:"")).replace(/[^\w\-]+/g,"_").slice(0,50)+".pdf";
+    deliverBlob(buildPdf(jpgs,PW,PH),name,"application/pdf");
+  }).catch(function(){ toast("Could not create PDF"); });
+}
+function renameCat(){
+  if(!curCat) return; var old=curCat;
+  ask({title:"Rename category",input:{value:old,placeholder:"Category name"},ok:"Save",onOk:function(v){
+    v=(v||"").trim(); if(!v||v===old) return;
+    cn.notes.forEach(function(n){ if(n.course===curCourse&&n.cat===old) n.cat=v; });
+    curCat=v; persistCN(); renderNotes(); toast("Category renamed");
+  }});
+}
 
 function addCourse(){
   var n=$("cnName").value.trim(); if(!n){ toast("Enter a course name"); return; }
@@ -661,6 +885,16 @@ function addCourse(){
   cn.courses.push({id:Date.now(),name:n}); persistCN(); $("cnName").value=""; renderCourses(); toast("Course created");
 }
 function renderCourses(){
+  var q=($("cnQ").value||"").toLowerCase().split(/\s+/).filter(Boolean);
+  if(q.length){
+    var res=cn.notes.filter(function(n){
+      var co=courseOf(n.course), h=(n.title+" "+n.cat+" "+n.body+" "+(co?co.name:"")).toLowerCase();
+      return q.every(function(t){return h.indexOf(t)>-1});
+    }).sort(function(a,b){ return (b.pin?1:0)-(a.pin?1:0)||b.ts-a.ts; });
+    $("cnCnt").textContent=res.length+(res.length===1?" note found":" notes found");
+    $("cnList").innerHTML=res.length?res.map(function(n){ return noteCard(n,q,true); }).join(""):'<div class="empty">No notes match.</div>';
+    loadPics(); return;
+  }
   $("cnCnt").textContent=cn.courses.length+(cn.courses.length===1?" course":" courses");
   var ed='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>';
   var de='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
@@ -679,9 +913,10 @@ function delCourse(id){
   var c=courseOf(id); if(!c) return;
   var ns=cn.notes.filter(function(x){return x.course===id});
   ask({title:"Delete course",msg:"Delete "+c.name+" and its "+ns.length+(ns.length===1?" note?":" notes?"),ok:"Delete",danger:true,onOk:function(){
-    ns.forEach(function(x){ if(x.photo) photoDel(x.id).catch(function(){}); });
     cn.notes=cn.notes.filter(function(x){return x.course!==id}); cn.courses=cn.courses.filter(function(x){return x.id!==id});
-    persistCN(); renderCourses(); toast("Deleted");
+    persistCN(); renderCourses();
+    offerUndo("Course deleted",function(){ cn.courses.push(c); ns.forEach(function(x){ cn.notes.push(x); }); persistCN(); renderCourses(); },
+      function(){ ns.forEach(function(x){ picsOf(x).forEach(function(pid){ photoDel(pid).catch(function(){}); pcDel(pid); }); }); });
   }});
 }
 function openCourse(id){ curCourse=id; curCat=""; openNote=null; $("ncQ").value=""; show("cnl"); }
@@ -692,6 +927,7 @@ function renderNotes(){
   var cats={}; all.forEach(function(n){ if(n.cat) cats[n.cat.toLowerCase()]=n.cat; });
   ncCats=Object.keys(cats).sort().map(function(k){return cats[k]});
   if(curCat&&ncCats.indexOf(curCat)<0) curCat="";
+  $("ncRen").classList.toggle("hide",!curCat);
   $("ncChips").innerHTML='<button class="bc'+(curCat?'':' on')+'" onclick="pickNcCat(-1)">All</button>'+ncCats.map(function(x,i){return '<button class="bc'+(x===curCat?' on':'')+'" onclick="pickNcCat('+i+')">'+esc(x)+'</button>'}).join("");
   var terms=($("ncQ").value||"").toLowerCase().split(/\s+/).filter(Boolean);
   var list=all.filter(function(n){
@@ -700,26 +936,28 @@ function renderNotes(){
   }).sort(function(a,b){ return (b.pin?1:0)-(a.pin?1:0)||b.ts-a.ts; });
   $("ncCnt").textContent=terms.length||curCat?list.length+" of "+all.length+" notes":all.length+(all.length===1?" note":" notes");
   $("ncList").innerHTML=list.length?list.map(function(n){ return noteCard(n,terms); }).join(""):'<div class="empty">'+(all.length?"No notes match.":"No notes yet. Tap + New note.")+'</div>';
-  if(openNote){ var n=cn.notes.find(function(x){return x.id===openNote}); if(n&&n.photo){ photoGet(n.id).then(function(d){ var el=document.getElementById("np"+n.id); if(el&&d) el.src=d; }).catch(function(){}); } }
+  loadPics();
 }
-function noteCard(n,terms){
-  var op=openNote===n.id;
+function noteCard(n,terms,showCourse){
+  var op=openNote===n.id, pics=picsOf(n), co=showCourse?courseOf(n.course):null;
   var h='<div class="nc'+(op?' op':'')+(n.pin?' pn':'')+'" onclick="toggleNote('+n.id+')"><div class="nh"><div class="nt">'+hl(n.title,terms)+'</div>'+(n.pin?'<span class="st">&#9733;</span>':'')+'</div>'+
-  '<div class="nm">'+(n.cat?'<span class="tg">'+hl(n.cat,terms)+'</span>':'')+'<span>'+new Date(n.ts).toLocaleDateString("en-GB")+'</span>'+(n.photo?'<span>Photo</span>':'')+'</div>'+
+  '<div class="nm">'+(co?'<span class="tg" style="background:var(--y);color:var(--ink)">'+esc(co.name)+'</span>':'')+(n.cat?'<span class="tg">'+hl(n.cat,terms)+'</span>':'')+'<span>'+new Date(n.ts).toLocaleDateString("en-GB")+'</span>'+(pics.length?'<span>'+pics.length+(pics.length===1?' photo':' photos')+'</span>':'')+'</div>'+
   (n.body?'<div class="nb">'+richHtml(n.body,terms)+'</div>':'');
   if(op){
-    if(n.photo) h+='<img class="np" id="np'+n.id+'" alt="Notebook photo">';
+    pics.forEach(function(pid){ h+='<img class="np" data-pid="'+esc(String(pid))+'" alt="Notebook photo" onclick="event.stopPropagation();viewPic(this)">'; });
     h+='<div class="na" onclick="event.stopPropagation()"><button onclick="pinNote('+n.id+')">'+(n.pin?'Unpin':'Pin')+'</button><button onclick="copyNote('+n.id+')">Copy</button><button onclick="shareNoteImg('+n.id+')">Image</button><button onclick="shareNoteText('+n.id+')">Text</button><button onclick="editNote('+n.id+')">Edit</button><button class="x" onclick="delNote('+n.id+')">Delete</button></div>';
   }
   return h+'</div>';
 }
-function toggleNote(id){ openNote=openNote===id?null:id; renderNotes(); }
+function toggleNote(id){ openNote=openNote===id?null:id; refreshNotes(); }
 function pickNcCat(i){ curCat=i<0?"":ncCats[i]; renderNotes(); }
-function pinNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(n){ n.pin=!n.pin; persistCN(); renderNotes(); } }
+function pinNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(n){ n.pin=!n.pin; persistCN(); refreshNotes(); } }
 function delNote(id){
+  var n=cn.notes.find(function(x){return x.id===id}); if(!n) return;
   ask({title:"Delete note",msg:"Delete this note?",ok:"Delete",danger:true,onOk:function(){
-    var n=cn.notes.find(function(x){return x.id===id}); if(n&&n.photo) photoDel(id).catch(function(){});
-    cn.notes=cn.notes.filter(function(x){return x.id!==id}); openNote=null; persistCN(); renderNotes(); toast("Deleted");
+    cn.notes=cn.notes.filter(function(x){return x.id!==id}); openNote=null; persistCN(); refreshNotes();
+    offerUndo("Note deleted",function(){ cn.notes.push(n); persistCN(); refreshNotes(); },
+      function(){ picsOf(n).forEach(function(pid){ photoDel(pid).catch(function(){}); pcDel(pid); }); });
   }});
 }
 function noteText(n){ return n.title+(n.cat?"\n["+n.cat+"]":"")+(n.body?"\n\n"+n.body:""); }
@@ -742,33 +980,36 @@ function fillNoteForm(n){
   $("neCourse").innerHTML=cn.courses.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join("");
   $("neCourse").value=String(n?n.course:curCourse); fillCats();
   $("neCat").value=n?n.cat:curCat; $("neTitle").value=n?n.title:""; $("neBody").value=n?n.body:"";
-  nePhoto=null; neMode="none"; $("nePhoto").innerHTML="";
-  if(n&&n.photo){ neMode="keep"; photoGet(n.id).then(function(d){ if(d&&neMode==="keep"){ nePhoto=d; drawPhotoPrev(); } }).catch(function(){}); }
+  nePics=[]; neRemoved=[]; $("nePhoto").innerHTML="";
+  if(n){ picsOf(n).forEach(function(pid){ var o={id:pid,data:null,isNew:false}; nePics.push(o); photoGetAny(pid).then(function(d){ o.data=d||null; drawPhotoPrev(); }); }); drawPhotoPrev(); }
   $("cneTitle").textContent=n?"Edit note":"New note";
 }
 function newNote(){ editNoteId=null; fillNoteForm(null); show("cne"); }
 function editNote(id){ var n=cn.notes.find(function(x){return x.id===id}); if(!n) return; editNoteId=id; fillNoteForm(n); show("cne"); }
-function drawPhotoPrev(){ $("nePhoto").innerHTML=nePhoto?'<img class="np" style="margin:0 0 8px" src="'+nePhoto+'" alt="Photo"><button class="ghost" style="margin:0 0 6px" onclick="removePhoto()">Remove photo</button>':""; }
-function removePhoto(){ nePhoto=null; neMode="none"; drawPhotoPrev(); }
+function drawPhotoPrev(){
+  $("nePhoto").innerHTML=nePics.length?'<div class="thumbs">'+nePics.map(function(p,i){
+    return '<div class="th">'+(p.data?'<img src="'+p.data+'" alt="Photo">':'<div class="tph"></div>')+'<button type="button" onclick="removePhoto('+i+')" aria-label="Remove photo">&times;</button></div>';
+  }).join("")+'</div>':"";
+}
+function removePhoto(i){ var p=nePics.splice(i,1)[0]; if(p&&!p.isNew) neRemoved.push(p.id); drawPhotoPrev(); }
 function pickPhoto(e){
-  var f=e.target.files[0]; if(!f) return; var r=new FileReader();
-  r.onload=function(){ var im=new Image(); im.onload=function(){
-    var m=1280, k=Math.min(1,m/Math.max(im.width,im.height)), cv=document.createElement("canvas"); cv.width=Math.round(im.width*k); cv.height=Math.round(im.height*k);
-    cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height); nePhoto=cv.toDataURL("image/jpeg",0.72); neMode="new"; drawPhotoPrev();
-  }; im.onerror=function(){ toast("Could not open photo"); }; im.src=r.result; };
-  r.readAsDataURL(f); e.target.value="";
+  var files=Array.prototype.slice.call(e.target.files); e.target.value="";
+  files.reduce(function(p,f){
+    return p.then(function(){ return compressImage(f).then(function(d){ nePics.push({id:newPid(),data:d,isNew:true}); drawPhotoPrev(); }).catch(function(){ toast("Could not open photo"); }); });
+  },Promise.resolve());
 }
 function saveNote(){
   var course=Number($("neCourse").value), title=$("neTitle").value.trim(), body=$("neBody").value.trim(), cat=$("neCat").value.trim();
   if(!course){ toast("Create a course first"); return; }
   if(!title){ toast("Enter a title"); return; }
-  var n=editNoteId?cn.notes.find(function(x){return x.id===editNoteId}):null, had=n?n.photo:false;
+  var n=editNoteId?cn.notes.find(function(x){return x.id===editNoteId}):null;
   if(n){ n.course=course; n.cat=cat; n.title=title; n.body=body; }
-  else { n={id:Date.now(),course:course,cat:cat,title:title,body:body,pin:false,ts:Date.now(),photo:false}; cn.notes.push(n); }
-  var job=Promise.resolve();
-  if(neMode==="new"){ n.photo=true; job=photoPut(n.id,nePhoto); }
-  else if(neMode==="none"&&had){ n.photo=false; job=photoDel(n.id); }
-  job.catch(function(){ n.photo=had&&neMode!=="none"; toast("Could not save photo"); }).then(function(){
+  else { n={id:Date.now(),course:course,cat:cat,title:title,body:body,pin:false,ts:Date.now(),pics:[],photo:false}; cn.notes.push(n); }
+  var jobs=[];
+  nePics.forEach(function(p){ if(p.isNew&&p.data) jobs.push(photoPut(p.id,p.data).then(function(){ pcPut(p.id,p.data,n.id); })); });
+  neRemoved.forEach(function(id){ photoDel(id).catch(function(){}); pcDel(id); });
+  n.pics=nePics.map(function(p){return p.id}); n.photo=n.pics.length>0;
+  Promise.all(jobs).catch(function(){ toast("Could not save photo"); }).then(function(){
     persistCN(); curCourse=course; openNote=n.id; editNoteId=null; toast("Note saved"); goBack();
   });
 }
@@ -853,7 +1094,7 @@ function cSet(n,a){
   else if(n==="forms"){ forms=a; try{ localStorage.setItem("line_forms_v1",JSON.stringify(forms)); }catch(e){} }
   else {
     if(n==="courses") cn.courses=a;
-    else { var pf={}; cn.notes.forEach(function(x){pf[x.id]=x.photo}); a.forEach(function(x){x.photo=!!pf[x.id]}); cn.notes=a; }
+    else { var pf={}; cn.notes.forEach(function(x){pf[x.id]=x}); a.forEach(function(x){ var o=pf[x.id]; if(!x.pics) x.pics=(o&&o.pics&&o.pics.length)?o.pics:((o&&o.photo)?[x.id]:[]); x.photo=x.pics.length>0; }); cn.notes=a; }
     try{ localStorage.setItem("course_notes_v1",JSON.stringify(cn)); }catch(e){}
   }
 }
@@ -922,7 +1163,7 @@ function startSync(){
           merged=remote.concat(cArr(n).filter(function(o){return !have[o.id]}).map(function(o){return cClean(n,o)}));
           try{ localStorage.setItem(fl,"1"); }catch(e){}
         }
-        cSet(n,merged); FB.first[n]=true; cloudPush(n);
+        cSet(n,merged); FB.first[n]=true; cloudPush(n); if(n==="notes") uploadMissingPhotos();
       } else cSet(n,remote);
       if(CNAMES.every(function(x){return FB.first[x]})){ FB.err=""; FB.diag=""; }
       syncStatus(); refreshUI();
@@ -1081,8 +1322,10 @@ function editForm(id){
   $("frSave").textContent="Update full form"; $("frCancel").classList.remove("hide"); window.scrollTo(0,0);
 }
 function delForm(id){
+  var f=forms.find(function(x){return x.id===id}); if(!f) return;
   ask({title:"Delete full form",msg:"Delete this full form?",ok:"Delete",danger:true,onOk:function(){
-    forms=forms.filter(function(f){return f.id!==id}); persistForms(); renderForms(); toast("Deleted");
+    forms=forms.filter(function(x){return x.id!==id}); persistForms(); renderForms();
+    offerUndo("Full form deleted",function(){ forms.push(f); persistForms(); renderForms(); });
   }});
 }
 function setShowFull(){ showFull=$("frSw").checked; try{ localStorage.setItem("ld_showfull",showFull?"1":"0"); }catch(e){} }
@@ -1145,7 +1388,7 @@ function importData(e){
 
 load(); loadForms(); loadCN(); renderHome();
 try{ history.replaceState({s:"home"},""); }catch(e){}
-window.addEventListener("popstate",function(e){ if(!$("dlg").classList.contains("hide")) dlgClose(); depth=Math.max(0,depth-1); show((e.state&&e.state.s)||"home",true); });
+window.addEventListener("popstate",function(e){ if(!$("dlg").classList.contains("hide")) dlgClose(); if(!$("pv").classList.contains("hide")) closePv(); depth=Math.max(0,depth-1); show((e.state&&e.state.s)||"home",true); });
 if(mpGet()) lkOpen("enter",false);
 cloudInit();
 try{ if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)&&!window.AndroidBridge) navigator.serviceWorker.register("sw.js"); }catch(e){}
